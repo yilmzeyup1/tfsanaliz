@@ -586,23 +586,9 @@ class Handler(BaseHTTPRequestHandler):
                 subs = load_subscribers()
                 if not subs["list"]:
                     self.send_json({"ok":False,"msg":"Abone listesi bos"}); return
-                news = load_news_cache()
-                cfg  = load_cfg()
-                domain = cfg.get("platform_domain","http://localhost:5001")
-                ok_count = 0
-                errors = []
-                for sub in subs["list"]:
-                    unsub_url = f"{domain}/api/unsubscribe?token={sub['token']}"
-                    html = build_newsletter_html(news.get("items",[]), news.get("ai_analysis",""))
-                    html = html.replace("PLATFORM_URL", domain).replace("UNSUBSCRIBE_URL", unsub_url)
-                    ok, err_msg = send_smtp([sub["email"]], f"TFSAnaliz Haftalik Bulten - {datetime.now().strftime('%d.%m.%Y')}", html)
-                    if ok: ok_count += 1
-                    else: errors.append(err_msg)
-                if ok_count == len(subs["list"]):
-                    self.send_json({"ok":True,"msg":f"✓ Bulten {ok_count}/{len(subs['list'])} kisiye gonderildi"})
-                else:
-                    hata = errors[0] if errors else "bilinmeyen hata"
-                    self.send_json({"ok":False,"msg":f"Gonderilemedi ({ok_count}/{len(subs['list'])}): {hata}"})
+                # Arkaplanda gonder — Railway 30s timeout'unu asma
+                threading.Thread(target=_send_bulten_task, daemon=True).start()
+                self.send_json({"ok":True,"msg":f"✓ Bülten gönderimi başlatıldı ({len(subs['list'])} abone). Railway loglarından takip edebilirsiniz."})
             except Exception as e:
                 self.send_json({"ok":False,"msg":str(e)})
 
