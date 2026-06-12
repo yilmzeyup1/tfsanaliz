@@ -89,6 +89,13 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
 .tip-R{background:rgba(59,130,246,.12);color:var(--accent2)}
 .tip-K{background:rgba(34,197,94,.12);color:var(--green)}
 .footer{border-top:1px solid var(--border);padding:20px 28px;text-align:center;font-size:12px;color:var(--text2);margin-top:48px}
+.donem-banner{background:linear-gradient(90deg,rgba(59,130,246,.15),rgba(96,165,250,.08));border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:10px 20px;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--accent2);margin-bottom:18px}
+.donem-badge{background:var(--accent);color:#fff;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:700;letter-spacing:.5px}
+.sektor-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.sb-item{border-left:2px solid var(--border);padding-left:14px}.sb-item:first-child{border-left:none;padding-left:0}
+.sb-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.sb-val{font-size:20px;font-weight:700;color:var(--white)}
+.sb-src{font-size:10px;color:var(--text2);margin-top:3px}
 @media(max-width:900px){.hero-grid{grid-template-columns:repeat(3,1fr)}.charts-grid{grid-template-columns:1fr}.chart-box.wide{grid-column:1}.news-grid{grid-template-columns:1fr}.sub-form{flex-direction:column}}
 </style>
 </head>
@@ -106,38 +113,64 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
     </nav>
   </div>
   <div class="topbar-right">
-    <span class="badge">&#9679; CANLI</span>
-    <span id="update-time" style="font-size:11px">—</span>
+    <span class="badge">&#9679; 2025 YILI SONU</span>
   </div>
 </div>
 <div class="hero">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <span style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#60a5fa;letter-spacing:.5px">&#128197; 2025 YILI SONU VERİLERİ</span>
+    <span style="font-size:11px;color:var(--text2)">31.12.2025 tarihi itibarıyla · Kaynak: BDDK Bağımsız Denetim Raporları &amp; Faaliyet Raporları</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--text2)">Son güncelleme: <span id="update-time">—</span></span>
+  </div>
   <div class="hero-grid">
-    <div class="hero-stat"><div class="hs-label">Toplam Şirket</div><div class="hs-val" id="h-sirket">—</div><div class="hs-sub" style="color:var(--text2)">BDDK Lisanslı</div></div>
-    <div class="hero-stat"><div class="hs-label">Aktif Sözleşme</div><div class="hs-val" id="h-sozlesme">—</div><div class="hs-sub hs-up" id="h-buyume">—</div></div>
-    <div class="hero-stat"><div class="hs-label">Toplam Birikim</div><div class="hs-val" id="h-birikim">—</div><div class="hs-sub" style="color:var(--text2)">Mn TL</div></div>
-    <div class="hero-stat"><div class="hs-label">Teslim Edilen Konut</div><div class="hs-val" id="h-teslim">—</div><div class="hs-sub" style="color:var(--text2)">Kümülatif</div></div>
-    <div class="hero-stat"><div class="hs-label">Ort. Aylık Katkı</div><div class="hs-val" id="h-katki">—</div><div class="hs-sub" style="color:var(--text2)">TL</div></div>
-    <div class="hero-stat"><div class="hs-label">Son Dönem</div><div class="hs-val" id="h-donem" style="font-size:16px">—</div><div class="hs-sub" style="color:var(--text2)">BDDK Raporu</div></div>
+    <div class="hero-stat"><div class="hs-label">Toplam Şirket</div><div class="hs-val" id="h-sirket">—</div><div class="hs-sub" style="color:var(--text2)">BDDK Lisanslı · 9 şirket</div></div>
+    <div class="hero-stat"><div class="hs-label">Sektör Toplam Varlık</div><div class="hs-val" id="h-varlik">—</div><div class="hs-sub" style="color:var(--text2)">Mn TL · BDDK 31.12.2025</div></div>
+    <div class="hero-stat"><div class="hs-label">Sektör Özkaynaklar</div><div class="hs-val" id="h-ozkaynak">—</div><div class="hs-sub" style="color:var(--text2)">Mn TL · BDDK 31.12.2025</div></div>
+    <div class="hero-stat"><div class="hs-label">Sektör Dönem Net Karı</div><div class="hs-val" id="h-kar">—</div><div class="hs-sub" style="color:var(--text2)">Mn TL · BDDK 31.12.2025</div></div>
+    <div class="hero-stat"><div class="hs-label">Katılımevim Aktif Üye</div><div class="hs-val" id="h-sozlesme">—</div><div class="hs-sub" style="color:var(--text2)">Faaliyet Raporu 2025</div></div>
+    <div class="hero-stat"><div class="hs-label">Veri Dönemi</div><div class="hs-val" id="h-donem" style="font-size:15px">31.12.2025</div><div class="hs-sub hs-up">2025 Yılı Sonu ✓</div></div>
   </div>
 </div>
 <div class="main">
 <div id="tab-dashboard" class="tab-content active">
+  <!-- Sektör özet kutusu - BDDK gerçek verisi -->
+  <div class="donem-banner">
+    <span class="donem-badge">31.12.2025</span>
+    <span>Tüm finansal veriler 2025 yılı sonu itibarıyla · BDDK bağımsız denetim raporları ve yıllık faaliyet raporlarından alınmıştır.</span>
+  </div>
+  <div class="sektor-box" id="sektor-box">
+    <div class="sb-item">
+      <div class="sb-label">Sektör Toplam Varlık</div>
+      <div class="sb-val" id="sb-varlik">—</div>
+      <div class="sb-src">BDDK Temel Gösterim · 31.12.2025</div>
+    </div>
+    <div class="sb-item">
+      <div class="sb-label">Sektör Özkaynaklar</div>
+      <div class="sb-val" id="sb-ozkaynak">—</div>
+      <div class="sb-src">BDDK Temel Gösterim · 31.12.2025</div>
+    </div>
+    <div class="sb-item">
+      <div class="sb-label">Sektör Dönem Net Karı</div>
+      <div class="sb-val" id="sb-kar">—</div>
+      <div class="sb-src">BDDK Temel Gösterim · 31.12.2025</div>
+    </div>
+  </div>
   <div class="section-title">
     <span>&#128203; Şirket Karşılaştırma Tablosu</span>
-    <span style="font-size:11px;font-weight:400;color:var(--text2)">Kaynak: BDDK · <span id="veri-tarihi">—</span></span>
+    <span style="font-size:11px;font-weight:400;color:var(--text2)">Kaynak: BDDK Denetim &amp; Faaliyet Raporları · 31.12.2025 · <span id="veri-tarihi">—</span></span>
   </div>
   <div class="table-wrap">
     <table><thead><tr>
       <th>Şirket</th><th>Ana Ortak</th><th>Odak</th>
-      <th class="num">Aktif Sözleşme</th><th class="num">Pazar Payı</th>
-      <th class="num">Teslim Konut</th><th class="num">Max Vade</th>
+      <th class="num">Aktif Sözleşme</th><th class="num">Toplam Varlık (Mn TL)</th>
+      <th class="num">Teslim (2025)</th><th class="num">Max Vade</th>
       <th>Güncel Kampanya</th><th>Durum</th>
     </tr></thead><tbody id="table-body"></tbody></table>
   </div>
   <div class="charts-grid">
-    <div class="chart-box wide"><div class="chart-title">Sektör Büyüme Trendi</div><div class="chart-sub">Çeyreklik aktif sözleşme ve birikim tutarı</div><canvas id="chart-trend" height="85"></canvas></div>
-    <div class="chart-box"><div class="chart-title">Pazar Payı</div><div class="chart-sub">Aktif sözleşme sayısına göre</div><canvas id="chart-pie" height="220"></canvas></div>
-    <div class="chart-box"><div class="chart-title">Teslim Edilen Konut</div><div class="chart-sub">Şirket bazında kümülatif</div><canvas id="chart-bar" height="220"></canvas></div>
+    <div class="chart-box wide"><div class="chart-title">Toplam Varlık ve TF Alacakları — Şirket Bazında</div><div class="chart-sub">31.12.2025 · BDDK Bağımsız Denetim Raporları · Mn TL</div><canvas id="chart-trend" height="85"></canvas></div>
+    <div class="chart-box"><div class="chart-title">Toplam Varlık Dağılımı</div><div class="chart-sub">Sektör içindeki pay · 31.12.2025</div><canvas id="chart-pie" height="220"></canvas></div>
+    <div class="chart-box"><div class="chart-title">Özkaynaklar — Şirket Bazında</div><div class="chart-sub">Mn TL · 31.12.2025 · BDDK Denetim Raporu</div><canvas id="chart-bar" height="220"></canvas></div>
   </div>
 </div>
 <div id="tab-compare" class="tab-content">
@@ -189,10 +222,10 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
            ondragleave="this.style.borderColor='#1a3356'"
            ondrop="handleDrop(event)">
         <div style="font-size:36px;margin-bottom:10px">&#128196;</div>
-        <div style="color:#c8d8eb;font-size:14px;font-weight:600">PDF dosyasını buraya sürükleyin veya tıklayın</div>
-        <div style="color:#475569;font-size:12px;margin-top:6px">Maksimum boyut: 30 MB · Sadece .pdf</div>
+        <div style="color:#c8d8eb;font-size:14px;font-weight:600">PDF dosyalarını buraya sürükleyin veya tıklayın</div>
+        <div style="color:#475569;font-size:12px;margin-top:6px">Birden fazla seçilebilir · Sadece .pdf · Her biri sırayla işlenir</div>
       </div>
-      <input type="file" id="pdf-input" accept=".pdf" style="display:none" onchange="handleFileSelect(this)">
+      <input type="file" id="pdf-input" accept=".pdf" multiple style="display:none" onchange="handleFileSelect(this)">
       <div id="pdf-filename" style="margin-top:12px;font-size:13px;color:#60a5fa;min-height:20px"></div>
       <button id="upload-btn" onclick="uploadPDF()" disabled
               style="margin-top:16px;width:100%;padding:13px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;opacity:.4;transition:opacity .2s">
@@ -228,23 +261,36 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
 </div>
 <div class="footer">
   TFSAnaliz · Tasarruf Finansman Sektörü Araştırma Platformu<br>
-  <span style="margin-top:4px;display:block;font-size:11px">Veriler BDDK sektör raporlarından derlenmiştir. Yatırım tavsiyesi niteliği taşımaz.</span>
+  <span style="margin-top:4px;display:block;font-size:11px">
+    Tüm finansal veriler <strong>31.12.2025</strong> tarihi itibarıyla BDDK bağımsız denetim raporlarından ve yıllık faaliyet raporlarından derlenmiştir. Sektör toplamları BDDK Finansman Şirketleri Temel Gösterim tablosundan alınmıştır. Yatırım tavsiyesi niteliği taşımaz.
+  </span>
 </div>
 <script>
 let DATA=null;
-const fmt=n=>Number(n).toLocaleString("tr-TR");
+const fmt=n=>n!=null?Number(n).toLocaleString("tr-TR"):"—";
+const fmtMnK=n=>n!=null?(Number(n)/1000).toLocaleString("tr-TR",{maximumFractionDigits:0})+" Mn TL":"—";
+
 async function loadData(){
   const r=await fetch("/api/data");DATA=await r.json();
   const s=DATA.sektor_ozeti;
+
+  // Hero stats - gerçek BDDK verileri
   document.getElementById("h-sirket").textContent=s.toplam_sirket;
-  document.getElementById("h-sozlesme").textContent=fmt(s.toplam_aktif_sozlesme);
-  document.getElementById("h-buyume").textContent="+"+s.sektor_buyume_yoy+"% YoY";
-  document.getElementById("h-birikim").textContent=fmt(s.toplam_birikim_tutari_mn_tl);
-  document.getElementById("h-teslim").textContent=fmt(s.teslim_edilen_konut);
-  document.getElementById("h-katki").textContent=fmt(s.ortalama_aylik_katki_tl)+" TL";
-  document.getElementById("h-donem").textContent=s.son_guncelleme_donem;
-  document.getElementById("veri-tarihi").textContent=DATA._meta.guncelleme;
+  document.getElementById("h-varlik").textContent=s.toplam_varlik_mn_tl!=null?(Number(s.toplam_varlik_mn_tl)/1000).toLocaleString("tr-TR",{maximumFractionDigits:0})+" Bn TL":"—";
+  document.getElementById("h-ozkaynak").textContent=s.ozkaynaklar_mn_tl!=null?Number(s.ozkaynaklar_mn_tl).toLocaleString("tr-TR",{maximumFractionDigits:0}):"—";
+  document.getElementById("h-kar").textContent=s.donem_net_kari_mn_tl!=null?Number(s.donem_net_kari_mn_tl).toLocaleString("tr-TR",{maximumFractionDigits:0}):"—";
+  // Katılımevim aktif üye - en güvenilir operasyonel veri
+  const kat=DATA.sirketler.find(c=>c.id==="katilimevim");
+  document.getElementById("h-sozlesme").textContent=kat&&kat.aktif_sozlesme!=null?Number(kat.aktif_sozlesme).toLocaleString("tr-TR"):"—";
+  document.getElementById("h-donem").textContent="31.12.2025";
+  document.getElementById("veri-tarihi").textContent=DATA._meta.veri_donemi||DATA._meta.guncelleme;
   document.getElementById("update-time").textContent=DATA._meta.guncelleme;
+
+  // Sektör özet kutusu
+  document.getElementById("sb-varlik").textContent=s.toplam_varlik_mn_tl!=null?Number(s.toplam_varlik_mn_tl).toLocaleString("tr-TR")+" Mn TL":"—";
+  document.getElementById("sb-ozkaynak").textContent=s.ozkaynaklar_mn_tl!=null?Number(s.ozkaynaklar_mn_tl).toLocaleString("tr-TR")+" Mn TL":"—";
+  document.getElementById("sb-kar").textContent=s.donem_net_kari_mn_tl!=null?Number(s.donem_net_kari_mn_tl).toLocaleString("tr-TR")+" Mn TL":"—";
+
   renderTable();renderCharts();renderCompareSelectors();renderMevzuat();
 }
 function renderTable(){
@@ -252,22 +298,34 @@ function renderTable(){
     <td><span class="comp-dot" style="background:${c.logo_renk}"></span><a href="${c.url}" target="_blank" class="comp-link">${c.ad}</a><div class="comp-brand" style="margin-left:18px">${c.marka}</div></td>
     <td style="color:var(--text2)">${c.ana_ortak}</td>
     <td><span class="pill pill-blue">${c.odak}</span></td>
-    <td class="num">${fmt(c.aktif_sozlesme)}</td>
-    <td class="num"><div class="bar-wrap"><div class="bar"><div class="bar-fill" style="width:${c.pazar_payi*4}px;background:${c.logo_renk}"></div></div>${c.pazar_payi}%</div></td>
-    <td class="num">${fmt(c.teslim_konut)}</td>
+    <td class="num">${c.aktif_sozlesme!=null?Number(c.aktif_sozlesme).toLocaleString("tr-TR"):'<span style="color:var(--text2)">—</span>'}</td>
+    <td class="num">${c.toplam_varlik_mn_tl!=null?Number(c.toplam_varlik_mn_tl).toLocaleString("tr-TR",{maximumFractionDigits:0})+' Mn ₺':'<span style="color:var(--text2)">—</span>'}</td>
+    <td class="num">${c.teslim_konut!=null?Number(c.teslim_konut).toLocaleString("tr-TR"):'<span style="color:var(--text2)">—</span>'}</td>
     <td class="num">${c.max_vade_ay} ay</td>
     <td style="max-width:200px;white-space:normal;font-size:12px;color:var(--text2)">${c.kampanya}</td>
     <td><span class="pill pill-green">${c.durum}</span></td>
   </tr>`).join("");
 }
 function renderCharts(){
-  const labels=DATA.donemsel_veriler.map(d=>d.donem);
-  new Chart(document.getElementById("chart-trend").getContext("2d"),{type:"line",data:{labels,datasets:[
-    {label:"Aktif Sozlesme",data:DATA.donemsel_veriler.map(d=>d.sozlesme_sayisi),borderColor:"#3b82f6",backgroundColor:"rgba(59,130,246,.08)",tension:.4,yAxisID:"y"},
-    {label:"Birikim (Mn TL)",data:DATA.donemsel_veriler.map(d=>d.birikim_mn),borderColor:"#22c55e",backgroundColor:"rgba(34,197,94,.05)",tension:.4,yAxisID:"y1"}
-  ]},options:{responsive:true,interaction:{mode:"index",intersect:false},plugins:{legend:{labels:{color:"#6b8cae",font:{size:12}}}},scales:{x:{grid:{color:"rgba(26,51,86,.5)"},ticks:{color:"#6b8cae"}},y:{grid:{color:"rgba(26,51,86,.5)"},ticks:{color:"#3b82f6"},position:"left"},y1:{grid:{drawOnChartArea:false},ticks:{color:"#22c55e"},position:"right"}}}});
-  new Chart(document.getElementById("chart-pie").getContext("2d"),{type:"doughnut",data:{labels:DATA.sirketler.map(c=>c.ad),datasets:[{data:DATA.sirketler.map(c=>c.pazar_payi),backgroundColor:DATA.sirketler.map(c=>c.logo_renk+"cc"),borderColor:"#060d18",borderWidth:2}]},options:{responsive:true,cutout:"58%",plugins:{legend:{position:"right",labels:{color:"#6b8cae",font:{size:11},boxWidth:12,padding:10}}}}});
-  new Chart(document.getElementById("chart-bar").getContext("2d"),{type:"bar",data:{labels:DATA.sirketler.map(c=>c.ad),datasets:[{label:"Teslim Edilen Konut",data:DATA.sirketler.map(c=>c.teslim_konut),backgroundColor:DATA.sirketler.map(c=>c.logo_renk+"bb"),borderRadius:4}]},options:{responsive:true,indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{grid:{color:"rgba(26,51,86,.5)"},ticks:{color:"#6b8cae"}},y:{grid:{color:"rgba(26,51,86,.3)"},ticks:{color:"#c8d8eb",font:{size:11}}}}}});
+  // Toplam Varlık bazlı dağılım grafiği (gerçek BDDK verisi)
+  const withVarlik=DATA.sirketler.filter(c=>c.toplam_varlik_mn_tl!=null);
+  new Chart(document.getElementById("chart-trend").getContext("2d"),{type:"bar",data:{
+    labels:withVarlik.map(c=>c.ad),
+    datasets:[
+      {label:"Toplam Varlık (Mn TL)",data:withVarlik.map(c=>c.toplam_varlik_mn_tl),backgroundColor:withVarlik.map(c=>c.logo_renk+"bb"),borderRadius:4,yAxisID:"y"},
+      {label:"TF Alacakları (Mn TL)",data:withVarlik.map(c=>c.tf_alacaklari_mn_tl),backgroundColor:withVarlik.map(c=>c.logo_renk+"55"),borderRadius:4,yAxisID:"y"}
+    ]
+  },options:{responsive:true,interaction:{mode:"index",intersect:false},plugins:{
+    legend:{labels:{color:"#6b8cae",font:{size:12}}},
+    title:{display:true,text:"31.12.2025 – BDDK Bağımsız Denetim Raporları",color:"#6b8cae",font:{size:11}}
+  },scales:{x:{grid:{color:"rgba(26,51,86,.5)"},ticks:{color:"#6b8cae"}},y:{grid:{color:"rgba(26,51,86,.5)"},ticks:{color:"#c8d8eb"},position:"left"}}}});
+  // Özkaynaklar pasta grafiği
+  new Chart(document.getElementById("chart-pie").getContext("2d"),{type:"doughnut",data:{labels:withVarlik.map(c=>c.ad),datasets:[{data:withVarlik.map(c=>c.toplam_varlik_mn_tl),backgroundColor:withVarlik.map(c=>c.logo_renk+"cc"),borderColor:"#060d18",borderWidth:2}]},options:{responsive:true,cutout:"58%",plugins:{legend:{position:"right",labels:{color:"#6b8cae",font:{size:11},boxWidth:12,padding:10}},title:{display:true,text:"Toplam Varlık Dağılımı · 31.12.2025",color:"#6b8cae",font:{size:11}}}}});
+  // Finansal bar chart - Özkaynaklar
+  new Chart(document.getElementById("chart-bar").getContext("2d"),{type:"bar",data:{
+    labels:withVarlik.map(c=>c.ad),
+    datasets:[{label:"Özkaynaklar (Mn TL)",data:withVarlik.map(c=>c.ozkaynaklar_mn_tl),backgroundColor:withVarlik.map(c=>c.logo_renk+"bb"),borderRadius:4}]
+  },options:{responsive:true,indexAxis:"y",plugins:{legend:{display:false},title:{display:true,text:"Özkaynaklar · Mn TL · 31.12.2025",color:"#6b8cae",font:{size:11}}},scales:{x:{grid:{color:"rgba(26,51,86,.5)"},ticks:{color:"#6b8cae"}},y:{grid:{color:"rgba(26,51,86,.3)"},ticks:{color:"#c8d8eb",font:{size:11}}}}}});
 }
 function renderCompareSelectors(){
   document.getElementById("compare-selectors").innerHTML=DATA.sirketler.map(c=>`<button class="comp-btn" data-id="${c.id}" onclick="toggleComp(this)">${c.ad}</button>`).join("");
@@ -402,20 +460,21 @@ async function exportData(){
 }
 
 // ── PDF Yükleme ──
-let selectedFile=null;
+let selectedFiles=[];
 function handleFileSelect(input){
-  if(input.files&&input.files[0])setFile(input.files[0]);
+  if(input.files&&input.files.length>0)setFiles(Array.from(input.files));
 }
 function handleDrop(e){
   e.preventDefault();
   document.getElementById("drop-zone").style.borderColor="#1a3356";
-  const f=e.dataTransfer.files[0];
-  if(f&&f.name.toLowerCase().endsWith(".pdf"))setFile(f);
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.name.toLowerCase().endsWith(".pdf"));
+  if(files.length>0)setFiles(files);
   else showUploadStatus("Sadece .pdf dosyaları kabul edilir.","#ef4444");
 }
-function setFile(f){
-  selectedFile=f;
-  document.getElementById("pdf-filename").textContent="Seçilen: "+f.name+" ("+Math.round(f.size/1024)+" KB)";
+function setFiles(files){
+  selectedFiles=files;
+  const names=files.map(f=>f.name).join(", ");
+  document.getElementById("pdf-filename").textContent=files.length+" dosya seçildi: "+names;
   const btn=document.getElementById("upload-btn");
   btn.disabled=false;btn.style.opacity="1";
   document.getElementById("extract-result").style.display="none";
@@ -423,31 +482,36 @@ function setFile(f){
 }
 function showUploadStatus(msg,color){
   const el=document.getElementById("upload-status");
-  el.textContent=msg;el.style.color=color||"#c8d8eb";
+  el.innerHTML=msg;el.style.color=color||"#c8d8eb";
 }
 async function uploadPDF(){
-  if(!selectedFile)return;
+  if(!selectedFiles.length)return;
   const btn=document.getElementById("upload-btn");
-  btn.disabled=true;btn.style.opacity=".6";btn.textContent="Analiz ediliyor… (30-60 sn)";
-  showUploadStatus("PDF okunuyor ve Claude API'ye gönderiliyor…","#60a5fa");
+  btn.disabled=true;btn.style.opacity=".6";
   document.getElementById("extract-result").style.display="none";
-  try{
-    const fd=new FormData();fd.append("pdf_file",selectedFile,selectedFile.name);
-    const r=await fetch("/api/upload_pdf",{method:"POST",body:fd});
-    const d=await r.json();
-    if(d.ok){
-      showUploadStatus(d.msg,"#22c55e");
+  const results=[];
+  for(let i=0;i<selectedFiles.length;i++){
+    const f=selectedFiles[i];
+    btn.textContent=`Analiz ediliyor ${i+1}/${selectedFiles.length}: ${f.name}`;
+    showUploadStatus(`<b>${i+1}/${selectedFiles.length}</b> — ${f.name} işleniyor…`,"#60a5fa");
+    try{
+      const fd=new FormData();fd.append("pdf_file",f,f.name);
+      const r=await fetch("/api/upload_pdf",{method:"POST",body:fd});
+      const d=await r.json();
+      results.push({name:f.name,ok:d.ok,msg:d.msg,extracted:d.extracted});
       if(d.extracted)showExtracted(d.extracted);
-      await loadData(); // hero istatistikleri yenile
-    } else {
-      showUploadStatus("Hata: "+d.msg,"#ef4444");
-      if(d.extracted)showExtracted(d.extracted);
+    }catch(e){
+      results.push({name:f.name,ok:false,msg:"Bağlantı hatası: "+e});
     }
-  } catch(e){
-    showUploadStatus("Bağlantı hatası: "+e,"#ef4444");
-  } finally {
-    btn.disabled=false;btn.style.opacity="1";btn.textContent="Claude ile Analiz Et ve Güncelle";
   }
+  await loadData();
+  // Özet göster
+  const ok=results.filter(r=>r.ok).length;
+  const fail=results.filter(r=>!r.ok);
+  let summary=`<b>✓ ${ok}/${results.length} şirket güncellendi</b><br>`;
+  fail.forEach(r=>{summary+=`<span style="color:#ef4444">✗ ${r.name}: ${r.msg}</span><br>`;});
+  showUploadStatus(summary, ok===results.length?"#22c55e":"#f59e0b");
+  btn.disabled=false;btn.style.opacity="1";btn.textContent="Claude ile Analiz Et ve Güncelle";
 }
 function showExtracted(ex){
   const labels={

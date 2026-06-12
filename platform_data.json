@@ -2,68 +2,24 @@
   "_meta": {
     "guncelleme": "2026-06-12",
     "kaynak": "BDDK Bağımsız Denetim Raporları (31.12.2025 Solo Finansal Tablolar)",
-    "not": "Finansal veriler 31.12.2025 tarihli BDDK bağımsız denetim raporlarından pdfplumber ile çıkarılmıştır. Tüm tutarlar Mn TL cinsindendir.",
-    "veri_kaynagi_aciklama": "Adil Finansman: bozuk PDF (çıkarılamadı). Sinpaş: taranmış görüntü PDF (çıkarılamadı). İmece: rapor yüklenmedi."
+    "not": "Finansal veriler 31.12.2025 tarihli BDDK bağımsız denetim raporlarından çıkarılmıştır. Operasyonel veriler (aktif sözleşme, teslimat) 2025 yıllık faaliyet raporlarından alınmıştır. Tüm tutarlar Mn TL cinsindendir. Veri tarihi: 31.12.2025 (2025 Yılı Sonu).",
+    "veri_kaynagi_aciklama": "Adil Finansman: bozuk PDF (finansal çıkarılamadı); faaliyet raporu yüklenmedi. Sinpaş: taranmış görüntü PDF (finansal çıkarılamadı); faaliyet raporu 16 sayfalık tarama. İmece: denetim raporu yüklenmedi; faaliyet raporu yüklenmedi. Fuzul: yüklenen dosya aylık dergi (Kasım-Aralık 2025), resmi faaliyet raporu değil — yıl sonu operasyonel veri çıkarılamadı. Birevim: faaliyet raporu yüklenmedi. Sektör verisi: BDDK Finansman Şirketleri Temel Gösterim 2025/12 XLS tablosundan alınmıştır.",
+    "veri_donemi": "31.12.2025"
   },
   "sektor_ozeti": {
+    "kaynak": "BDDK Finansman Şirketleri Temel Gösterim (31.12.2025)",
+    "donem": "31.12.2025",
+    "toplam_varlik_mn_tl": 353823,
+    "ozkaynaklar_mn_tl": 43541,
+    "donem_net_kari_mn_tl": 14301,
     "toplam_sirket": 9,
-    "toplam_aktif_sozlesme": 285000,
-    "toplam_birikim_tutari_mn_tl": 42500,
-    "teslim_edilen_konut": 18400,
-    "sektor_buyume_yoy": 34.2,
-    "son_guncelleme_donem": "Q1 2026",
-    "ortalama_aylik_katki_tl": 4200
+    "not": "BDDK Temel Gösterim tablosundan alınan sektör toplamları. Aktif sözleşme ve teslimat verileri BDDK Temel Gösterimde yer almamaktadır.",
+    "aktif_sozlesme": null,
+    "toplam_birikim_tutari_mn_tl": null,
+    "teslim_edilen_konut": null,
+    "son_guncelleme_donem": "31.12.2025"
   },
-  "donemsel_veriler": [
-    {
-      "donem": "Q1 2024",
-      "sozlesme_sayisi": 190000,
-      "birikim_mn": 22000,
-      "teslim": 11200
-    },
-    {
-      "donem": "Q2 2024",
-      "sozlesme_sayisi": 210000,
-      "birikim_mn": 26500,
-      "teslim": 12800
-    },
-    {
-      "donem": "Q3 2024",
-      "sozlesme_sayisi": 235000,
-      "birikim_mn": 31000,
-      "teslim": 14500
-    },
-    {
-      "donem": "Q4 2024",
-      "sozlesme_sayisi": 258000,
-      "birikim_mn": 36800,
-      "teslim": 16200
-    },
-    {
-      "donem": "Q1 2025",
-      "sozlesme_sayisi": 271000,
-      "birikim_mn": 39200,
-      "teslim": 17100
-    },
-    {
-      "donem": "Q2 2025",
-      "sozlesme_sayisi": 280000,
-      "birikim_mn": 41000,
-      "teslim": 17800
-    },
-    {
-      "donem": "Q3 2025",
-      "sozlesme_sayisi": 282000,
-      "birikim_mn": 41800,
-      "teslim": 18100
-    },
-    {
-      "donem": "Q4 2025",
-      "sozlesme_sayisi": 285000,
-      "birikim_mn": 42500,
-      "teslim": 18400
-    }
-  ],
+  "donemsel_veriler": [],
   "sirketler": [
     {
       "id": "adil",
@@ -76,9 +32,9 @@
       "ana_ortak": "Adil Yatırım Holding",
       "odak": "Konut",
       "lisans_tarihi": "2021",
-      "aktif_sozlesme": 28000,
+      "aktif_sozlesme": null,
       "pazar_payi": 9.8,
-      "teslim_konut": 1650,
+      "teslim_konut": null,
       "min_vade_ay": 12,
       "max_vade_ay": 120,
       "kampanya": "Yüzde sıfır faizli sistem, 10 yıla kadar vade",
@@ -107,15 +63,15 @@
       "ana_ortak": "Albayrak Grubu",
       "odak": "Konut & Ticari",
       "lisans_tarihi": "2021",
-      "aktif_sozlesme": 35000,
+      "aktif_sozlesme": 164,
       "pazar_payi": 12.3,
-      "teslim_konut": 2200,
+      "teslim_konut": 0,
       "min_vade_ay": 12,
       "max_vade_ay": 120,
       "kampanya": "Konut + araç sistemi, özel vade seçenekleri",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": "İlk tam faaliyet yılı (2025). Dönem zararı var.",
+      "not": "05.05.2025 kuruldu; 28.07.2025'te faaliyete başladı (ilk faaliyet yılı). 164 adet sözleşme, 385 Mn TL ciro (Temmuz-Aralık 2025). 80 personel. Dönem zararı var.",
       "donem": "31.12.2025",
       "toplam_varlik_mn_tl": 425.7,
       "tf_alacaklari_mn_tl": 3.5,
@@ -125,7 +81,8 @@
       "esas_faaliyet_gelirleri_mn_tl": 25.3,
       "vergi_oncesi_kar_mn_tl": -38.3,
       "ebitda_mn_tl": null,
-      "finansal_guncelleme": "12.06.2026"
+      "finansal_guncelleme": "12.06.2026",
+      "faaliyet_raporu_guncelleme": "12.06.2026"
     },
     {
       "id": "birevim",
@@ -138,9 +95,9 @@
       "ana_ortak": "Pusula Finans (eski: Katılımevim → 2025'te satıldı)",
       "odak": "Konut",
       "lisans_tarihi": "2021",
-      "aktif_sozlesme": 52000,
+      "aktif_sozlesme": null,
       "pazar_payi": 18.2,
-      "teslim_konut": 3800,
+      "teslim_konut": null,
       "min_vade_ay": 24,
       "max_vade_ay": 120,
       "kampanya": "Emlak Konut projeleri öncelikli erişim",
@@ -169,15 +126,15 @@
       "ana_ortak": "Emin Üstün Holding",
       "odak": "Konut",
       "lisans_tarihi": "2022",
-      "aktif_sozlesme": 18000,
+      "aktif_sozlesme": null,
       "pazar_payi": 6.3,
-      "teslim_konut": 980,
+      "teslim_konut": null,
       "min_vade_ay": 12,
       "max_vade_ay": 96,
       "kampanya": "Esnek ödeme planları, erken çekilişe katılım",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": "Sektörde toplam varlık bazında en büyük şirket (31.12.2025).",
+      "not": "Sektörde toplam varlık bazında en büyük şirket (31.12.2025). 168 şube, 3.000+ çalışan. 2025'te 400.000 kümülatif teslimata ulaştı. 2025 yılı tahsisat: 125.000+ adet; tahsisat tutarı: 120,7 Milyar TL. Aktif sözleşme sayısı faaliyet raporunda ayrıca belirtilmemiş.",
       "donem": "31.12.2025",
       "toplam_varlik_mn_tl": 142933.0,
       "tf_alacaklari_mn_tl": 54180.1,
@@ -187,7 +144,11 @@
       "esas_faaliyet_gelirleri_mn_tl": 36603.4,
       "vergi_oncesi_kar_mn_tl": 38693.1,
       "ebitda_mn_tl": 50779.7,
-      "finansal_guncelleme": "12.06.2026"
+      "finansal_guncelleme": "12.06.2026",
+      "tahsisat_toplam_2025": 125000,
+      "kumulatif_teslimat": 400000,
+      "sozlesme_hacmi_2025_mn_tl": 500000,
+      "faaliyet_raporu_guncelleme": "12.06.2026"
     },
     {
       "id": "emlakkatilim",
@@ -200,15 +161,15 @@
       "ana_ortak": "Emlak Katılım Bankası",
       "odak": "Konut & Katılım",
       "lisans_tarihi": "2025",
-      "aktif_sozlesme": 44000,
+      "aktif_sozlesme": null,
       "pazar_payi": 15.4,
-      "teslim_konut": 2900,
+      "teslim_konut": null,
       "min_vade_ay": 12,
       "max_vade_ay": 120,
       "kampanya": "Faizsiz katılım sistemi, banka güvencesi",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": "3 Mart 2025'te kuruldu. Henüz müşterilere finansman tahsis edilmemiş (TF Alacakları = 0).",
+      "not": "3 Mart 2025'te kuruldu. Henüz müşterilere finansman tahsisi yapılmamış (TF Alacakları = 0). Raporlama sonrası 69 yeni şube açıldı (2026). Aktif sözleşme sayısı raporda belirtilmemiş.",
       "donem": "31.12.2025",
       "toplam_varlik_mn_tl": 10973.2,
       "tf_alacaklari_mn_tl": 0.0,
@@ -218,7 +179,8 @@
       "esas_faaliyet_gelirleri_mn_tl": 2955.7,
       "vergi_oncesi_kar_mn_tl": 2352.2,
       "ebitda_mn_tl": null,
-      "finansal_guncelleme": "12.06.2026"
+      "finansal_guncelleme": "12.06.2026",
+      "faaliyet_raporu_guncelleme": "12.06.2026"
     },
     {
       "id": "fuzul",
@@ -231,9 +193,9 @@
       "ana_ortak": "Fuzul Holding",
       "odak": "Konut",
       "lisans_tarihi": "2021",
-      "aktif_sozlesme": 38000,
+      "aktif_sozlesme": null,
       "pazar_payi": 13.3,
-      "teslim_konut": 2450,
+      "teslim_konut": null,
       "min_vade_ay": 12,
       "max_vade_ay": 120,
       "kampanya": "Konut + arsa sistemi, çekilişli kampanyalar",
@@ -262,9 +224,9 @@
       "ana_ortak": "Özel",
       "odak": "Konut",
       "lisans_tarihi": "2022",
-      "aktif_sozlesme": 21000,
+      "aktif_sozlesme": null,
       "pazar_payi": 7.4,
-      "teslim_konut": 1100,
+      "teslim_konut": null,
       "min_vade_ay": 12,
       "max_vade_ay": 108,
       "kampanya": "Sosyal konut odaklı sistem",
@@ -293,15 +255,15 @@
       "ana_ortak": "Katılım Bankaları",
       "odak": "Konut & Katılım",
       "lisans_tarihi": "2021",
-      "aktif_sozlesme": 31000,
+      "aktif_sozlesme": 135443,
       "pazar_payi": 10.9,
-      "teslim_konut": 1920,
+      "teslim_konut": 4144,
       "min_vade_ay": 12,
       "max_vade_ay": 120,
       "kampanya": "Katılım bankacılığı uyumlu sistem",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": "2025'te Birevim TFŞ bağlı ortaklığını Pusula Finans'a devretti. İktisat Katılım Bankası'nda 9,99 Mn TL yatırım var.",
+      "not": "2025'te Birevim TFŞ bağlı ortaklığını Pusula Finans'a devretti. İktisat Katılım Bankası'nda yatırım var. Aktif sözleşme (aktif üye) 135.443 (31.12.2025); 2025 konut teslimi 4.144 adet; toplam tahsisat 41.610 adet (faaliyet raporu).",
       "donem": "31.12.2025",
       "toplam_varlik_mn_tl": 44813.0,
       "tf_alacaklari_mn_tl": 18969.7,
@@ -311,7 +273,10 @@
       "esas_faaliyet_gelirleri_mn_tl": 13707.8,
       "vergi_oncesi_kar_mn_tl": 10907.9,
       "ebitda_mn_tl": null,
-      "finansal_guncelleme": "12.06.2026"
+      "finansal_guncelleme": "12.06.2026",
+      "tahsisat_toplam_2025": 41610,
+      "sozlesme_hacmi_2025_mn_tl": 183488,
+      "faaliyet_raporu_guncelleme": "12.06.2026"
     },
     {
       "id": "sinpas",
@@ -324,9 +289,9 @@
       "ana_ortak": "Sinpaş GYO",
       "odak": "Konut",
       "lisans_tarihi": "2022",
-      "aktif_sozlesme": 18000,
+      "aktif_sozlesme": null,
       "pazar_payi": 6.3,
-      "teslim_konut": 980,
+      "teslim_konut": null,
       "min_vade_ay": 24,
       "max_vade_ay": 120,
       "kampanya": "Sinpaş projeleri entegre sistem",
