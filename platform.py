@@ -256,31 +256,59 @@ def get_or_refresh_news():
     return cache
 
 def send_smtp(to_list, subject, html_body):
-    cfg = load_cfg(); ec = cfg.get("email", {})
+    """Resend API (HTTPS) veya Gmail SMTP ile mail gonderir. Resend onceliklidir."""
+    cfg = load_cfg()
+
+    # --- Resend API (Railway SMTP bloge karsı tercihli yol) ---
+    resend_key = os.environ.get("RESEND_API_KEY", cfg.get("resend_api_key", ""))
+    if resend_key:
+        ec = cfg.get("email", {})
+        sender = ec.get("sender", "onboarding@resend.dev")
+        from_field = f"TFSAnaliz <{sender}>" if "@resend.dev" not in sender else "TFSAnaliz <onboarding@resend.dev>"
+        payload = json.dumps({
+            "from": from_field,
+            "to": to_list,
+            "subject": subject,
+            "html": html_body
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.resend.com/emails",
+            data=payload,
+            headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+            method="POST"
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                return True, "Resend ile gonderildi"
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8", errors="ignore")
+            return False, f"Resend API hatasi ({e.code}): {err_body}"
+        except Exception as e:
+            return False, f"Resend hatasi: {e}"
+
+    # --- Gmail SMTP (fallback, Railway'de genellikle bloklu) ---
+    ec = cfg.get("email", {})
     sender, pw = ec.get("sender",""), ec.get("app_password","")
-    if not sender or not pw: return False, "E-posta ayarlari eksik"
+    if not sender or not pw: return False, "Ne RESEND_API_KEY ne de Gmail ayarlari var"
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject; msg["From"] = f"TFSAnaliz <{sender}>"; msg["To"] = ", ".join(to_list)
     msg.attach(MIMEText("HTML destekli istemci kullaniniz.", "plain","utf-8"))
     msg.attach(MIMEText(html_body, "html","utf-8"))
-    # 587 (STARTTLS) dene, basarisizsa 465 (SSL) dene
     last_err = None
     for port, use_ssl in [(587, False), (465, True)]:
         try:
             if use_ssl:
-                ctx = ssl.create_default_context()
-                with smtplib.SMTP_SSL("smtp.gmail.com", port, context=ctx, timeout=10) as s:
+                with smtplib.SMTP_SSL("smtp.gmail.com", port, context=ssl.create_default_context(), timeout=10) as s:
                     s.login(sender, pw); s.sendmail(sender, to_list, msg.as_bytes())
             else:
                 with smtplib.SMTP("smtp.gmail.com", port, timeout=10) as s:
                     s.ehlo(); s.starttls(context=ssl.create_default_context()); s.ehlo()
                     s.login(sender, pw); s.sendmail(sender, to_list, msg.as_bytes())
-            return True, f"{len(to_list)} kisiye gonderildi (port {port})"
+            return True, f"Gmail ile gonderildi (port {port})"
         except smtplib.SMTPAuthenticationError:
             return False, "Gmail App Password hatali"
         except Exception as e:
-            last_err = e
-            continue
+            last_err = e; continue
     return False, str(last_err)
 
 def build_newsletter_html(news_items, ai_analysis):
