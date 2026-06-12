@@ -585,6 +585,18 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.send_json({"ok":False,"msg":str(e)})
 
+        elif self.path == "/api/test_email":
+            # Resend baglantisini test eder — sonucu aninda gosterir
+            try:
+                data = json.loads(self.rfile.read(int(self.headers.get("Content-Length",0))) or b"{}")
+                to_email = data.get("email","")
+                if not to_email:
+                    self.send_json({"ok":False,"msg":"email parametresi eksik"}); return
+                ok, msg = send_smtp([to_email], "TFSAnaliz — Test Maili", "<h2>Test basarili!</h2><p>Resend API calisiyor.</p>")
+                self.send_json({"ok":ok,"msg":msg})
+            except Exception as e:
+                self.send_json({"ok":False,"msg":str(e)})
+
         elif self.path == "/api/refresh_news":
             threading.Thread(target=refresh_news_task, daemon=True).start()
             self.send_json({"ok":True})

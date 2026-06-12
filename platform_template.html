@@ -272,6 +272,14 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
         &#9993; Bülteni Şimdi Gönder
       </button>
       <div id="newsletter-status" style="margin-top:10px;font-size:13px;min-height:18px"></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a3356">
+        <div style="font-size:12px;color:#6b8cae;margin-bottom:8px">🔧 Mail sistemi testi — sonucu anında gösterir:</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="test-email-input" type="email" placeholder="test@gmail.com" style="flex:1;padding:8px 12px;background:#060d18;border:1px solid #1a3356;border-radius:8px;color:#f0f6ff;font-size:13px;outline:none">
+          <button onclick="testEmail()" style="padding:8px 16px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);color:#fcd34d;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Test Gönder</button>
+        </div>
+        <div id="test-email-status" style="margin-top:8px;font-size:12px;min-height:16px"></div>
+      </div>
     </div>
 
     <div id="extract-result" style="display:none;background:#0d1a2d;border:1px solid #166534;border-radius:14px;padding:24px 28px">
@@ -507,6 +515,22 @@ async function sendNewsletter(){
     status.style.color="#ef4444";status.textContent="Bağlantı hatası: "+e.message;
   }finally{
     btn.disabled=false;btn.textContent="✉ Bülteni Şimdi Gönder";
+  }
+}
+
+async function testEmail(){
+  const inp=document.getElementById("test-email-input");
+  const status=document.getElementById("test-email-status");
+  const email=inp.value.trim();
+  if(!email){status.style.color="#ef4444";status.textContent="E-posta adresi girin.";return;}
+  status.style.color="var(--text2)";status.textContent="Gönderiliyor…";
+  try{
+    const r=await fetch("/api/test_email",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
+    const d=await r.json();
+    status.style.color=d.ok?"#22c55e":"#ef4444";
+    status.textContent=d.ok?"✓ Mail gönderildi! Gelen kutunuzu kontrol edin.":"✗ "+d.msg;
+  }catch(e){
+    status.style.color="#ef4444";status.textContent="Bağlantı hatası: "+e.message;
   }
 }
 
