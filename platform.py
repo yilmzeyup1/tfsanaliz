@@ -319,12 +319,16 @@ Bu metinden finansal verileri cikar. SADECE asagidaki JSON formatinda don, baska
   "tf_alacaklari_mn_tl": ...,
   "tf_borclar_mn_tl": ...,
   "ozkaynaklar_mn_tl": ...,
-  "donem_kari_mn_tl": ...
+  "donem_kari_mn_tl": ...,
+  "esas_faaliyet_gelirleri_mn_tl": ...,
+  "ebitda_mn_tl": ...
 }}
 
 Kurallar:
 - sirket_adi: raporun basligindaki tam sirket adi (Tasarruf Finansman A.S. ile birlikte)
 - donem: raporun bitis tarihi, ornegin "31.12.2025"
+- esas_faaliyet_gelirleri_mn_tl: Gelir tablosundaki "Esas Faaliyet Gelirleri", "Tasarruf Finansman Gelirleri" veya "Net Faiz/Finansman Gelirleri" kalemi
+- ebitda_mn_tl: Faaliyet Kari + Amortismanlar (varsa "FAVOK" veya "EBITDA" satirini kullan; yoksa Donem Kari uzerine vergi + amortisman + faiz gideri ekleyerek hesapla; bulamazsan null)
 - Tutarlar milyon TL cinsinden sayisal deger. Rapor "Bin TL" birimindeyse 1000'e bol; "TL" birimindeyse 1.000.000'a bol.
 - Bulunamazsa null kullan.
 - Yanit sadece JSON olmali."""
@@ -374,7 +378,8 @@ def update_company_financials(extracted):
             return False, f"Sirket eslestirilemedi: '{extracted.get('sirket_adi')}'. platform_data.json'daki tam_ad degerlerini kontrol edin."
 
         for field in ["donem", "toplam_varlik_mn_tl", "tf_alacaklari_mn_tl",
-                      "tf_borclar_mn_tl", "ozkaynaklar_mn_tl", "donem_kari_mn_tl"]:
+                      "tf_borclar_mn_tl", "ozkaynaklar_mn_tl", "donem_kari_mn_tl",
+                      "esas_faaliyet_gelirleri_mn_tl", "ebitda_mn_tl"]:
             if extracted.get(field) is not None:
                 matched[field] = extracted[field]
         matched["finansal_guncelleme"] = datetime.now().strftime("%d.%m.%Y")
