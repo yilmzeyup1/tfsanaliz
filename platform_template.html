@@ -102,6 +102,7 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
       <button class="nav-item" onclick="switchTab('haberler',this)">&#128240; Haberler</button>
       <button class="nav-item" onclick="switchTab('mevzuat',this)">&#9878; Mevzuat</button>
       <button class="nav-item" onclick="switchTab('bulten',this)">&#128231; Bülten</button>
+      <button class="nav-item" onclick="switchTab('veri',this)">&#128196; Veri Güncelle</button>
     </nav>
   </div>
   <div class="topbar-right">
@@ -172,6 +173,42 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
     <div class="sub-msg" id="sub-msg"></div>
   </div>
 </div>
+
+<div id="tab-veri" class="tab-content">
+  <div class="section-title">&#128196; BDDK Denetim Raporu Yükle</div>
+  <div style="max-width:640px;margin:0 auto">
+    <div style="background:#0d1a2d;border:1px solid #1a3356;border-radius:14px;padding:28px 32px;margin-bottom:20px">
+      <div style="font-size:13px;color:#6b8cae;line-height:1.7;margin-bottom:20px">
+        BDDK bağımsız denetim raporu PDF'ini yükleyin. Claude API bilançoyu ve gelir tablosunu okuyarak
+        <strong style="color:#f0f6ff">şirketin finansal verilerini otomatik günceller</strong>.
+        Desteklenen format: metin tabanlı PDF (Emin Evim, Birevim, Albayrak vb. raporları).
+      </div>
+      <div id="drop-zone" style="border:2px dashed #1a3356;border-radius:10px;padding:36px;text-align:center;cursor:pointer;transition:border-color .2s"
+           onclick="document.getElementById('pdf-input').click()"
+           ondragover="event.preventDefault();this.style.borderColor='#3b82f6'"
+           ondragleave="this.style.borderColor='#1a3356'"
+           ondrop="handleDrop(event)">
+        <div style="font-size:36px;margin-bottom:10px">&#128196;</div>
+        <div style="color:#c8d8eb;font-size:14px;font-weight:600">PDF dosyasını buraya sürükleyin veya tıklayın</div>
+        <div style="color:#475569;font-size:12px;margin-top:6px">Maksimum boyut: 30 MB · Sadece .pdf</div>
+      </div>
+      <input type="file" id="pdf-input" accept=".pdf" style="display:none" onchange="handleFileSelect(this)">
+      <div id="pdf-filename" style="margin-top:12px;font-size:13px;color:#60a5fa;min-height:20px"></div>
+      <button id="upload-btn" onclick="uploadPDF()" disabled
+              style="margin-top:16px;width:100%;padding:13px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;opacity:.4;transition:opacity .2s">
+        Claude ile Analiz Et ve Güncelle
+      </button>
+      <div id="upload-status" style="margin-top:14px;font-size:13px;min-height:18px"></div>
+    </div>
+
+    <div id="extract-result" style="display:none;background:#0d1a2d;border:1px solid #166534;border-radius:14px;padding:24px 28px">
+      <div style="font-size:13px;font-weight:700;color:#4ade80;margin-bottom:14px">&#10003; Çıkarılan Finansal Veriler</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tbody id="extract-table"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 </div>
 <div class="footer">
   TFSAnaliz · Tasarruf Finansman Sektörü Araştırma Platformu<br>
@@ -230,43 +267,4 @@ function runCompare(){
   document.getElementById("compare-result").innerHTML=comps.map(c=>`<div class="compare-row">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span class="comp-dot" style="background:${c.logo_renk};width:14px;height:14px"></span><strong style="color:var(--white);font-size:15px">${c.tam_ad}</strong><span class="pill pill-blue" style="margin-left:auto">${c.odak}</span></div>
     <div class="cr-grid">${[["Aktif Sozlesme",fmt(c.aktif_sozlesme)+" adet"],["Pazar Payi",c.pazar_payi+"%"],["Teslim Konut",fmt(c.teslim_konut)+" adet"],["Max Vade",c.max_vade_ay+" ay"],["Kurulus",c.kurulus]].map(([l,v])=>`<div class="cr-metric"><div class="cr-label">${l}</div><div class="cr-value">${v}</div></div>`).join("")}</div>
-    <div style="margin-top:12px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:10px"><strong style="color:var(--text)">Kampanya:</strong> ${c.kampanya}</div>
-  </div>`).join("");
-}
-async function loadNews(){
-  try{
-    const r=await fetch("/api/news");const d=await r.json();
-    document.getElementById("news-updated").textContent=d.updated?"Son guncelleme: "+d.updated:"";
-    if(d.ai_analysis){
-      const clean=d.ai_analysis.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");
-      document.getElementById("ai-news-text").innerHTML=clean;
-      document.getElementById("ai-news-box").style.display="block";
-    }
-    if(!d.items||!d.items.length){document.getElementById("news-container").innerHTML=`<div style="text-align:center;padding:48px;color:var(--text2)">Haber bulunamadi. Birkaç dakika sonra tekrar deneyin.</div>`;return;}
-    document.getElementById("news-container").innerHTML=`<div class="news-grid">${d.items.map(n=>`<a href="${n.link}" target="_blank" class="news-card"><div class="news-title">${n.title}</div><div class="news-desc">${n.desc}</div><div class="news-meta"><span class="news-tag">Sektor</span><span>${n.date||""}</span></div></a>`).join("")}</div>`;
-  }catch(e){document.getElementById("news-container").innerHTML="<p style='color:var(--text2);padding:20px'>Haber yuklenemedi.</p>";}
-}
-function renderMevzuat(){
-  const tc={Y:"tip-Y",T:"tip-T",R:"tip-R",K:"tip-K"};
-  document.getElementById("mevzuat-list").innerHTML=DATA.mevzuat.slice().reverse().map(m=>`<div class="mevzuat-row"><div class="mev-date">${m.tarih}</div><div style="flex:1"><div class="mev-title">${m.baslik}</div><div class="mev-desc">${m.ozet}</div></div><span class="mev-tip ${tc[m.tip[0]]||"tip-T"}">${m.tip}</span></div>`).join("");
-}
-async function subscribe(){
-  const email=document.getElementById("sub-email").value.trim();
-  const msg=document.getElementById("sub-msg");
-  if(!email||!email.includes("@")){msg.style.color="#ef4444";msg.textContent="Gecerli bir e-posta adresi girin.";return}
-  const r=await fetch("/api/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
-  const d=await r.json();
-  msg.style.color=d.ok?"#22c55e":"#ef4444";msg.textContent=d.msg;
-  if(d.ok)document.getElementById("sub-email").value="";
-}
-function switchTab(name,el){
-  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
-  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
-  el.classList.add("active");
-  document.getElementById("tab-"+name).classList.add("active");
-  if(name==="haberler")loadNews();
-}
-loadData();
-</script>
-</body>
-</html>
+    <div style="margin-top:12px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:10px"><strong style="color:var(--text)">Kampany
