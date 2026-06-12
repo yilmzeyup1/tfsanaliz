@@ -1,8 +1,9 @@
 {
   "_meta": {
     "guncelleme": "2026-06-12",
-    "kaynak": "BDDK Tasarruf Finansman Şirketleri Sektör Raporları",
-    "not": "Veriler BDDK yayınlarından alınmıştır. Güncelleme için ilgili alanları düzenleyin."
+    "kaynak": "BDDK Bağımsız Denetim Raporları (31.12.2025 Solo Finansal Tablolar)",
+    "not": "Finansal veriler 31.12.2025 tarihli BDDK bağımsız denetim raporlarından pdfplumber ile çıkarılmıştır. Tüm tutarlar Mn TL cinsindendir.",
+    "veri_kaynagi_aciklama": "Adil Finansman: bozuk PDF (çıkarılamadı). Sinpaş: taranmış görüntü PDF (çıkarılamadı). İmece: rapor yüklenmedi."
   },
   "sektor_ozeti": {
     "toplam_sirket": 9,
@@ -83,7 +84,17 @@
       "kampanya": "Yüzde sıfır faizli sistem, 10 yıla kadar vade",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "31.12.2025 denetim raporu bozuk dosya — finansal veri çıkarılamadı",
+      "donem": null,
+      "toplam_varlik_mn_tl": null,
+      "tf_alacaklari_mn_tl": null,
+      "tf_borclar_mn_tl": null,
+      "ozkaynaklar_mn_tl": null,
+      "donem_kari_mn_tl": null,
+      "esas_faaliyet_gelirleri_mn_tl": null,
+      "vergi_oncesi_kar_mn_tl": null,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": null
     },
     {
       "id": "albayrak",
@@ -104,7 +115,17 @@
       "kampanya": "Konut + araç sistemi, özel vade seçenekleri",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "İlk tam faaliyet yılı (2025). Dönem zararı var.",
+      "donem": "31.12.2025",
+      "toplam_varlik_mn_tl": 425.7,
+      "tf_alacaklari_mn_tl": 3.5,
+      "tf_borclar_mn_tl": 78.7,
+      "ozkaynaklar_mn_tl": 223.6,
+      "donem_kari_mn_tl": -27.3,
+      "esas_faaliyet_gelirleri_mn_tl": 25.3,
+      "vergi_oncesi_kar_mn_tl": -38.3,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": "12.06.2026"
     },
     {
       "id": "birevim",
@@ -114,7 +135,7 @@
       "url": "https://www.birevim.com",
       "logo_renk": "#27ae60",
       "kurulus": 2021,
-      "ana_ortak": "Emlak Konut GYO",
+      "ana_ortak": "Pusula Finans (eski: Katılımevim → 2025'te satıldı)",
       "odak": "Konut",
       "lisans_tarihi": "2021",
       "aktif_sozlesme": 52000,
@@ -125,7 +146,17 @@
       "kampanya": "Emlak Konut projeleri öncelikli erişim",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": "Sektörün en büyük oyuncularından"
+      "not": "2025 yılında Katılımevim'den Pusula Finans'a devredildi.",
+      "donem": "31.12.2025",
+      "toplam_varlik_mn_tl": 17866.1,
+      "tf_alacaklari_mn_tl": 8700.2,
+      "tf_borclar_mn_tl": 12255.7,
+      "ozkaynaklar_mn_tl": 3519.4,
+      "donem_kari_mn_tl": 4154.9,
+      "esas_faaliyet_gelirleri_mn_tl": 7269.0,
+      "vergi_oncesi_kar_mn_tl": 5959.3,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": "12.06.2026"
     },
     {
       "id": "eminevim",
@@ -135,7 +166,7 @@
       "url": "https://www.eminevim.com",
       "logo_renk": "#8e44ad",
       "kurulus": 2022,
-      "ana_ortak": "Özel",
+      "ana_ortak": "Emin Üstün Holding",
       "odak": "Konut",
       "lisans_tarihi": "2022",
       "aktif_sozlesme": 18000,
@@ -146,7 +177,17 @@
       "kampanya": "Esnek ödeme planları, erken çekilişe katılım",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "Sektörde toplam varlık bazında en büyük şirket (31.12.2025).",
+      "donem": "31.12.2025",
+      "toplam_varlik_mn_tl": 142933.0,
+      "tf_alacaklari_mn_tl": 54180.1,
+      "tf_borclar_mn_tl": 88971.2,
+      "ozkaynaklar_mn_tl": 45506.0,
+      "donem_kari_mn_tl": 26994.2,
+      "esas_faaliyet_gelirleri_mn_tl": 36603.4,
+      "vergi_oncesi_kar_mn_tl": 38693.1,
+      "ebitda_mn_tl": 50779.7,
+      "finansal_guncelleme": "12.06.2026"
     },
     {
       "id": "emlakkatilim",
@@ -155,10 +196,10 @@
       "marka": "Emlak Katılım TFS",
       "url": "http://www.emlakkatilimtfs.com.tr",
       "logo_renk": "#e67e22",
-      "kurulus": 2021,
+      "kurulus": 2025,
       "ana_ortak": "Emlak Katılım Bankası",
       "odak": "Konut & Katılım",
-      "lisans_tarihi": "2021",
+      "lisans_tarihi": "2025",
       "aktif_sozlesme": 44000,
       "pazar_payi": 15.4,
       "teslim_konut": 2900,
@@ -167,7 +208,17 @@
       "kampanya": "Faizsiz katılım sistemi, banka güvencesi",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "3 Mart 2025'te kuruldu. Henüz müşterilere finansman tahsis edilmemiş (TF Alacakları = 0).",
+      "donem": "31.12.2025",
+      "toplam_varlik_mn_tl": 10973.2,
+      "tf_alacaklari_mn_tl": 0.0,
+      "tf_borclar_mn_tl": 7124.5,
+      "ozkaynaklar_mn_tl": 3155.9,
+      "donem_kari_mn_tl": 1642.4,
+      "esas_faaliyet_gelirleri_mn_tl": 2955.7,
+      "vergi_oncesi_kar_mn_tl": 2352.2,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": "12.06.2026"
     },
     {
       "id": "fuzul",
@@ -188,7 +239,17 @@
       "kampanya": "Konut + arsa sistemi, çekilişli kampanyalar",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "",
+      "donem": "31.12.2025",
+      "toplam_varlik_mn_tl": 87058.3,
+      "tf_alacaklari_mn_tl": 45291.8,
+      "tf_borclar_mn_tl": 59155.0,
+      "ozkaynaklar_mn_tl": 23806.7,
+      "donem_kari_mn_tl": 17922.0,
+      "esas_faaliyet_gelirleri_mn_tl": 28085.3,
+      "vergi_oncesi_kar_mn_tl": 24685.2,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": "12.06.2026"
     },
     {
       "id": "imece",
@@ -209,7 +270,17 @@
       "kampanya": "Sosyal konut odaklı sistem",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "Denetim raporu bu sefer yüklenmedi — finansal veri yok.",
+      "donem": null,
+      "toplam_varlik_mn_tl": null,
+      "tf_alacaklari_mn_tl": null,
+      "tf_borclar_mn_tl": null,
+      "ozkaynaklar_mn_tl": null,
+      "donem_kari_mn_tl": null,
+      "esas_faaliyet_gelirleri_mn_tl": null,
+      "vergi_oncesi_kar_mn_tl": null,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": null
     },
     {
       "id": "katilimevim",
@@ -230,7 +301,17 @@
       "kampanya": "Katılım bankacılığı uyumlu sistem",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "2025'te Birevim TFŞ bağlı ortaklığını Pusula Finans'a devretti. İktisat Katılım Bankası'nda 9,99 Mn TL yatırım var.",
+      "donem": "31.12.2025",
+      "toplam_varlik_mn_tl": 44813.0,
+      "tf_alacaklari_mn_tl": 18969.7,
+      "tf_borclar_mn_tl": 28264.4,
+      "ozkaynaklar_mn_tl": 10759.9,
+      "donem_kari_mn_tl": 7828.8,
+      "esas_faaliyet_gelirleri_mn_tl": 13707.8,
+      "vergi_oncesi_kar_mn_tl": 10907.9,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": "12.06.2026"
     },
     {
       "id": "sinpas",
@@ -251,7 +332,17 @@
       "kampanya": "Sinpaş projeleri entegre sistem",
       "kampanya_tarihi": "2026-06",
       "durum": "Aktif",
-      "not": ""
+      "not": "Yüklenen faaliyet raporu taranmış görüntü PDF — metin çıkarılamadı. Finansal veri yok.",
+      "donem": null,
+      "toplam_varlik_mn_tl": null,
+      "tf_alacaklari_mn_tl": null,
+      "tf_borclar_mn_tl": null,
+      "ozkaynaklar_mn_tl": null,
+      "donem_kari_mn_tl": null,
+      "esas_faaliyet_gelirleri_mn_tl": null,
+      "vergi_oncesi_kar_mn_tl": null,
+      "ebitda_mn_tl": null,
+      "finansal_guncelleme": null
     }
   ],
   "mevzuat": [
