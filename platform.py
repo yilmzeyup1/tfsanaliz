@@ -223,7 +223,7 @@ def send_smtp(to_list, subject, html_body):
     msg.attach(MIMEText(html_body, "html","utf-8"))
     try:
         ctx = ssl.create_default_context()
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx, timeout=8) as s:
             s.login(sender, pw); s.sendmail(sender, to_list, msg.as_bytes())
         return True, f"{len(to_list)} kisiye gonderildi"
     except smtplib.SMTPAuthenticationError: return False, "Gmail App Password hatali"
@@ -476,15 +476,17 @@ class Handler(BaseHTTPRequestHandler):
                 token = secrets.token_hex(16)
                 subs["list"].append({"email":email,"token":token,"date":datetime.now().strftime("%d.%m.%Y")})
                 save_subscribers(subs)
-                # E-posta gondermeyi dene — basarisiz olsa bile abone kaydedildi
-                try:
-                    cfg = load_cfg()
-                    domain = cfg.get("platform_domain","http://localhost:5001")
-                    unsub_url = f"{domain}/api/unsubscribe?token={token}"
-                    welcome = f'<html><body style="font-family:sans-serif;background:#060d18;color:#c8d8eb;padding:40px;max-width:500px;margin:0 auto"><h2 style="color:#60a5fa">TFSAnaliz Bültenine Hoş Geldiniz!</h2><p>Haftalık sektör analizi artık doğrudan e-postanızda.</p><p style="font-size:12px;color:#475569;margin-top:32px">Aboneliği iptal: <a href="{unsub_url}" style="color:#6b8cae">{unsub_url}</a></p></body></html>'
-                    send_smtp([email], "TFSAnaliz Bülteni - Hoş Geldiniz!", welcome)
-                except Exception:
-                    pass  # E-posta basarisiz olsa da abone kaydedildi
+                # E-posta gonderimini arka planda yap — kullaniciya aninda yanit don
+                def _send_welcome(em, tok):
+                    try:
+                        cfg2 = load_cfg()
+                        domain2 = cfg2.get("platform_domain","http://localhost:5001")
+                        unsub_url2 = f"{domain2}/api/unsubscribe?token={tok}"
+                        welcome2 = f'<html><body style="font-family:sans-serif;background:#060d18;color:#c8d8eb;padding:40px;max-width:500px;margin:0 auto"><h2 style="color:#60a5fa">TFSAnaliz Bültenine Hos Geldiniz!</h2><p>Haftalik sektor analizi artik dogrudan e-postanizda.</p><p style="font-size:12px;color:#475569;margin-top:32px">Aboneligi iptal: <a href="{unsub_url2}" style="color:#6b8cae">{unsub_url2}</a></p></body></html>'
+                        send_smtp([em], "TFSAnaliz Bulteni - Hos Geldiniz!", welcome2)
+                    except Exception:
+                        pass
+                threading.Thread(target=_send_welcome, args=(email, token), daemon=True).start()
                 self.send_json({"ok":True,"msg":"Aboneliğiniz alındı! Bültenlerimizi takip edin."})
             except Exception as e:
                 self.send_json({"ok":False,"msg":str(e)})
