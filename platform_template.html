@@ -238,8 +238,7 @@ async function loadNews(){
     const r=await fetch("/api/news");const d=await r.json();
     document.getElementById("news-updated").textContent=d.updated?"Son guncelleme: "+d.updated:"";
     if(d.ai_analysis){
-      const clean=d.ai_analysis.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/
-/g,"<br>");
+      const clean=d.ai_analysis.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");
       document.getElementById("ai-news-text").innerHTML=clean;
       document.getElementById("ai-news-box").style.display="block";
     }
