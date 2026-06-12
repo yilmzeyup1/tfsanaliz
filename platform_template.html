@@ -267,4 +267,110 @@ function runCompare(){
   document.getElementById("compare-result").innerHTML=comps.map(c=>`<div class="compare-row">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span class="comp-dot" style="background:${c.logo_renk};width:14px;height:14px"></span><strong style="color:var(--white);font-size:15px">${c.tam_ad}</strong><span class="pill pill-blue" style="margin-left:auto">${c.odak}</span></div>
     <div class="cr-grid">${[["Aktif Sozlesme",fmt(c.aktif_sozlesme)+" adet"],["Pazar Payi",c.pazar_payi+"%"],["Teslim Konut",fmt(c.teslim_konut)+" adet"],["Max Vade",c.max_vade_ay+" ay"],["Kurulus",c.kurulus]].map(([l,v])=>`<div class="cr-metric"><div class="cr-label">${l}</div><div class="cr-value">${v}</div></div>`).join("")}</div>
-    <div style="margin-top:12px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:10px"><strong style="color:var(--text)">Kampany
+    <div style="margin-top:12px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:10px"><strong style="color:var(--text)">Kampanya:</strong> ${c.kampanya}</div>
+  </div>`).join("");
+}
+async function loadNews(){
+  try{
+    const r=await fetch("/api/news");const d=await r.json();
+    document.getElementById("news-updated").textContent=d.updated?"Son guncelleme: "+d.updated:"";
+    if(d.ai_analysis){
+      const clean=d.ai_analysis.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");
+      document.getElementById("ai-news-text").innerHTML=clean;
+      document.getElementById("ai-news-box").style.display="block";
+    }
+    if(!d.items||!d.items.length){document.getElementById("news-container").innerHTML=`<div style="text-align:center;padding:48px;color:var(--text2)">Haber bulunamadi. Birkaç dakika sonra tekrar deneyin.</div>`;return;}
+    document.getElementById("news-container").innerHTML=`<div class="news-grid">${d.items.map(n=>`<a href="${n.link}" target="_blank" class="news-card"><div class="news-title">${n.title}</div><div class="news-desc">${n.desc}</div><div class="news-meta"><span class="news-tag">Sektor</span><span>${n.date||""}</span></div></a>`).join("")}</div>`;
+  }catch(e){document.getElementById("news-container").innerHTML="<p style='color:var(--text2);padding:20px'>Haber yuklenemedi.</p>";}
+}
+function renderMevzuat(){
+  const tc={Y:"tip-Y",T:"tip-T",R:"tip-R",K:"tip-K"};
+  document.getElementById("mevzuat-list").innerHTML=DATA.mevzuat.slice().reverse().map(m=>`<div class="mevzuat-row"><div class="mev-date">${m.tarih}</div><div style="flex:1"><div class="mev-title">${m.baslik}</div><div class="mev-desc">${m.ozet}</div></div><span class="mev-tip ${tc[m.tip[0]]||"tip-T"}">${m.tip}</span></div>`).join("");
+}
+async function subscribe(){
+  const email=document.getElementById("sub-email").value.trim();
+  const msg=document.getElementById("sub-msg");
+  if(!email||!email.includes("@")){msg.style.color="#ef4444";msg.textContent="Gecerli bir e-posta adresi girin.";return}
+  const r=await fetch("/api/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
+  const d=await r.json();
+  msg.style.color=d.ok?"#22c55e":"#ef4444";msg.textContent=d.msg;
+  if(d.ok)document.getElementById("sub-email").value="";
+}
+function switchTab(name,el){
+  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("tab-"+name).classList.add("active");
+  if(name==="haberler")loadNews();
+}
+
+// ── PDF Yükleme ──
+let selectedFile=null;
+function handleFileSelect(input){
+  if(input.files&&input.files[0])setFile(input.files[0]);
+}
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById("drop-zone").style.borderColor="#1a3356";
+  const f=e.dataTransfer.files[0];
+  if(f&&f.name.toLowerCase().endsWith(".pdf"))setFile(f);
+  else showUploadStatus("Sadece .pdf dosyaları kabul edilir.","#ef4444");
+}
+function setFile(f){
+  selectedFile=f;
+  document.getElementById("pdf-filename").textContent="Seçilen: "+f.name+" ("+Math.round(f.size/1024)+" KB)";
+  const btn=document.getElementById("upload-btn");
+  btn.disabled=false;btn.style.opacity="1";
+  document.getElementById("extract-result").style.display="none";
+  document.getElementById("upload-status").textContent="";
+}
+function showUploadStatus(msg,color){
+  const el=document.getElementById("upload-status");
+  el.textContent=msg;el.style.color=color||"#c8d8eb";
+}
+async function uploadPDF(){
+  if(!selectedFile)return;
+  const btn=document.getElementById("upload-btn");
+  btn.disabled=true;btn.style.opacity=".6";btn.textContent="Analiz ediliyor… (30-60 sn)";
+  showUploadStatus("PDF okunuyor ve Claude API'ye gönderiliyor…","#60a5fa");
+  document.getElementById("extract-result").style.display="none";
+  try{
+    const fd=new FormData();fd.append("pdf_file",selectedFile,selectedFile.name);
+    const r=await fetch("/api/upload_pdf",{method:"POST",body:fd});
+    const d=await r.json();
+    if(d.ok){
+      showUploadStatus(d.msg,"#22c55e");
+      if(d.extracted)showExtracted(d.extracted);
+      await loadData(); // hero istatistikleri yenile
+    } else {
+      showUploadStatus("Hata: "+d.msg,"#ef4444");
+      if(d.extracted)showExtracted(d.extracted);
+    }
+  } catch(e){
+    showUploadStatus("Bağlantı hatası: "+e,"#ef4444");
+  } finally {
+    btn.disabled=false;btn.style.opacity="1";btn.textContent="Claude ile Analiz Et ve Güncelle";
+  }
+}
+function showExtracted(ex){
+  const labels={
+    sirket_adi:"Şirket",donem:"Dönem",
+    toplam_varlik_mn_tl:"Toplam Varlık (Mn TL)",
+    tf_alacaklari_mn_tl:"TF Alacakları (Mn TL)",
+    tf_borclar_mn_tl:"TF Borçları (Mn TL)",
+    ozkaynaklar_mn_tl:"Özkaynaklar (Mn TL)",
+    donem_kari_mn_tl:"Dönem Karı/Zararı (Mn TL)"
+  };
+  const rows=Object.entries(labels).map(([k,l])=>{
+    const v=ex[k];
+    const disp=(v===null||v===undefined)?"—":(typeof v==="number"?Number(v).toLocaleString("tr-TR"):v);
+    return `<tr><td style="padding:7px 0;color:#6b8cae;width:52%">${l}</td><td style="padding:7px 0;color:#f0f6ff;font-weight:600">${disp}</td></tr>`;
+  }).join("");
+  document.getElementById("extract-table").innerHTML=rows;
+  document.getElementById("extract-result").style.display="block";
+}
+
+loadData();
+</script>
+</body>
+</html>

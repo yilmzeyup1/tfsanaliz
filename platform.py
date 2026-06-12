@@ -407,4 +407,154 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-  
+    def do_GET(self):
+        cookie = self.headers.get("Cookie","")
+        if self.path == "/login":
+            self.send_html(LOGIN_PAGE.replace("{error}",""))
+            return
+        if self.path == "/logout":
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.send_header("Set-Cookie","tfs_session=; Max-Age=0; Path=/")
+            self.end_headers(); return
+        if not is_valid_session(cookie):
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.end_headers(); return
+        if self.path == "/":
+            self.send_html(load_template())
+        elif self.path == "/api/data":
+            self.send_json(load_data())
+        elif self.path == "/api/news":
+            self.send_json(get_or_refresh_news())
+        elif self.path.startswith("/api/unsubscribe"):
+            token = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get("token",[""])[0]
+            subs = load_subscribers()
+            subs["list"] = [s for s in subs["list"] if s.get("token") != token]
+            save_subscribers(subs)
+            self.send_html("<html><body style='font-family:sans-serif;text-align:center;padding:60px;background:#060d18;color:#c8d8eb'><h2>Aboneliginiz iptal edildi.</h2><p><a href='/' style='color:#60a5fa'>Ana sayfaya don</a></p></body></html>")
+        else:
+            self.send_response(404); self.end_headers()
+
+    def do_POST(self):
+        length = int(self.headers.get("Content-Length",0))
+        body   = self.rfile.read(length) if length else b""
+
+        if self.path == "/login":
+            try:
+                params = urllib.parse.parse_qs(body.decode())
+                pw = params.get("password",[""])[0]
+                if pw == PLATFORM_PASSWORD:
+                    token = create_session()
+                    self.send_response(302)
+                    self.send_header("Location","/")
+                    self.send_header("Set-Cookie",f"tfs_session={token}; Path=/; HttpOnly; Max-Age=86400")
+                    self.end_headers()
+                else:
+                    self.send_html(LOGIN_PAGE.replace("{error}",'<div class="err">Hatalı şifre</div>'))
+            except Exception as e:
+                self.send_html(LOGIN_PAGE.replace("{error}",f'<div class="err">{e}</div>'))
+            return
+
+        if not is_valid_session(self.headers.get("Cookie","")):
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.end_headers(); return
+
+        if self.path == "/api/subscribe":
+            try:
+                data  = json.loads(body)
+                email = data.get("email","").strip().lower()
+                if not email or "@" not in email:
+                    self.send_json({"ok":False,"msg":"Gecersiz e-posta adresi"}); return
+                subs = load_subscribers()
+                if any(s["email"] == email for s in subs["list"]):
+                    self.send_json({"ok":False,"msg":"Bu adres zaten kayitli."}); return
+                token = secrets.token_hex(16)
+                subs["list"].append({"email":email,"token":token,"date":datetime.now().strftime("%d.%m.%Y")})
+                save_subscribers(subs)
+                cfg = load_cfg()
+                domain = cfg.get("platform_domain","http://localhost:5001")
+                unsub_url = f"{domain}/api/unsubscribe?token={token}"
+                welcome = f'<html><body style="font-family:sans-serif;background:#060d18;color:#c8d8eb;padding:40px;max-width:500px;margin:0 auto"><h2 style="color:#60a5fa">TFSAnaliz Bulteni - Hos Geldiniz!</h2><p>Haftalik sektor analizi artik dogrudan e-postanizda.</p><p style="font-size:12px;color:#475569;margin-top:32px">Iptal: <a href="{unsub_url}" style="color:#6b8cae">{unsub_url}</a></p></body></html>'
+                send_smtp([email], "TFSAnaliz Bulteni - Hos Geldiniz!", welcome)
+                self.send_json({"ok":True,"msg":"Kaydiniz alindi! Hos geldin maili gonderildi."})
+            except Exception as e:
+                self.send_json({"ok":False,"msg":str(e)})
+
+        elif self.path == "/api/send_newsletter":
+            try:
+                subs = load_subscribers()
+                if not subs["list"]:
+                    self.send_json({"ok":False,"msg":"Abone listesi bos"}); return
+                news = load_news_cache()
+                cfg  = load_cfg()
+                domain = cfg.get("platform_domain","http://localhost:5001")
+                ok_count = 0
+                for sub in subs["list"]:
+                    unsub_url = f"{domain}/api/unsubscribe?token={sub['token']}"
+                    html = build_newsletter_html(news.get("items",[]), news.get("ai_analysis",""))
+                    html = html.replace("PLATFORM_URL", domain).replace("UNSUBSCRIBE_URL", unsub_url)
+                    ok, _ = send_smtp([sub["email"]], f"TFSAnaliz Haftalik Bulten - {datetime.now().strftime('%d.%m.%Y')}", html)
+                    if ok: ok_count += 1
+                self.send_json({"ok":True,"msg":f"Bulten {ok_count}/{len(subs['list'])} kisiye gonderildi"})
+            except Exception as e:
+                self.send_json({"ok":False,"msg":str(e)})
+
+        elif self.path == "/api/refresh_news":
+            threading.Thread(target=refresh_news_task, daemon=True).start()
+            self.send_json({"ok":True})
+
+        elif self.path == "/api/upload_pdf":
+            try:
+                ct = self.headers.get("Content-Type", "")
+                if "multipart/form-data" not in ct:
+                    self.send_json({"ok": False, "msg": "multipart/form-data bekleniyor"}); return
+
+                pdf_bytes, filename, err = parse_multipart_file(body, ct)
+                if err:
+                    self.send_json({"ok": False, "msg": err}); return
+                if not filename or not filename.lower().endswith(".pdf"):
+                    self.send_json({"ok": False, "msg": "Lutfen .pdf uzantili dosya yukleyin"}); return
+
+                # Finansal sayfalar genellikle 5-20 arasindadir; once orada dene
+                pdf_text, err = extract_pdf_text(pdf_bytes, range(4, 20))
+                if err:
+                    self.send_json({"ok": False, "msg": err}); return
+                if not pdf_text.strip():
+                    # Tum sayfaları tara
+                    pdf_text, err = extract_pdf_text(pdf_bytes)
+                    if err or not (pdf_text or "").strip():
+                        self.send_json({"ok": False, "msg": "PDF metnine erisilemedi (taranmis goruntu PDF olabilir)"}); return
+
+                extracted, err = extract_financials_with_claude(pdf_text, filename)
+                if err:
+                    self.send_json({"ok": False, "msg": err}); return
+
+                ok, info = update_company_financials(extracted)
+                if not ok:
+                    self.send_json({"ok": False, "msg": info, "extracted": extracted}); return
+
+                self.send_json({
+                    "ok": True,
+                    "msg": f"✓ {info} finansal verileri basariyla guncellendi.",
+                    "extracted": extracted
+                })
+            except Exception as e:
+                self.send_json({"ok": False, "msg": f"Sunucu hatasi: {e}"})
+
+        else:
+            self.send_response(404); self.end_headers()
+
+if __name__ == "__main__":
+    PORT = int(os.environ.get("PORT", 8080))
+    print("=" * 52, flush=True)
+    print("  TFSAnaliz - Arastirma Platformu", flush=True)
+    print(f"  http://0.0.0.0:{PORT}", flush=True)
+    print("=" * 52, flush=True)
+    threading.Thread(target=refresh_news_task, daemon=True).start()
+    server = HTTPServer(("0.0.0.0", PORT), Handler)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n  Durduruldu.", flush=True)
