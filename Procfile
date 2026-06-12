@@ -1,1 +1,1 @@
-web: python platform.py
+web: python3 platform.py
