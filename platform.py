@@ -262,11 +262,9 @@ def send_smtp(to_list, subject, html_body):
     # --- Resend API (Railway SMTP bloge karsı tercihli yol) ---
     resend_key = os.environ.get("RESEND_API_KEY", cfg.get("resend_api_key", ""))
     if resend_key:
-        ec = cfg.get("email", {})
-        sender = ec.get("sender", "onboarding@resend.dev")
-        from_field = f"TFSAnaliz <{sender}>" if "@resend.dev" not in sender else "TFSAnaliz <onboarding@resend.dev>"
+        # Resend ucretsiz planda sadece onboarding@resend.dev veya dogrulanmis domain
         payload = json.dumps({
-            "from": from_field,
+            "from": "TFSAnaliz <onboarding@resend.dev>",
             "to": to_list,
             "subject": subject,
             "html": html_body
@@ -279,11 +277,15 @@ def send_smtp(to_list, subject, html_body):
         )
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
+                resp_body = resp.read().decode("utf-8", errors="ignore")
+                print(f"  [RESEND] OK: {resp_body}", flush=True)
                 return True, "Resend ile gonderildi"
         except urllib.error.HTTPError as e:
             err_body = e.read().decode("utf-8", errors="ignore")
+            print(f"  [RESEND] HTTP {e.code}: {err_body}", flush=True)
             return False, f"Resend API hatasi ({e.code}): {err_body}"
         except Exception as e:
+            print(f"  [RESEND] Exception: {e}", flush=True)
             return False, f"Resend hatasi: {e}"
 
     # --- Gmail SMTP (fallback, Railway'de genellikle bloklu) ---
