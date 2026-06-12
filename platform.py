@@ -463,31 +463,37 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_html(LOGIN_PAGE.replace("{error}",f'<div class="err">{e}</div>'))
             return
 
-        if not is_valid_session(self.headers.get("Cookie","")):
-            self.send_response(302)
-            self.send_header("Location","/login")
-            self.end_headers(); return
-
+        # Subscribe endpoint — session gerekmez, herkese acik
         if self.path == "/api/subscribe":
             try:
                 data  = json.loads(body)
                 email = data.get("email","").strip().lower()
-                if not email or "@" not in email:
-                    self.send_json({"ok":False,"msg":"Gecersiz e-posta adresi"}); return
+                if not email or "@" not in email or "." not in email.split("@")[-1]:
+                    self.send_json({"ok":False,"msg":"Geçersiz e-posta adresi"}); return
                 subs = load_subscribers()
                 if any(s["email"] == email for s in subs["list"]):
-                    self.send_json({"ok":False,"msg":"Bu adres zaten kayitli."}); return
+                    self.send_json({"ok":False,"msg":"Bu adres zaten kayıtlı."}); return
                 token = secrets.token_hex(16)
                 subs["list"].append({"email":email,"token":token,"date":datetime.now().strftime("%d.%m.%Y")})
                 save_subscribers(subs)
-                cfg = load_cfg()
-                domain = cfg.get("platform_domain","http://localhost:5001")
-                unsub_url = f"{domain}/api/unsubscribe?token={token}"
-                welcome = f'<html><body style="font-family:sans-serif;background:#060d18;color:#c8d8eb;padding:40px;max-width:500px;margin:0 auto"><h2 style="color:#60a5fa">TFSAnaliz Bulteni - Hos Geldiniz!</h2><p>Haftalik sektor analizi artik dogrudan e-postanizda.</p><p style="font-size:12px;color:#475569;margin-top:32px">Iptal: <a href="{unsub_url}" style="color:#6b8cae">{unsub_url}</a></p></body></html>'
-                send_smtp([email], "TFSAnaliz Bulteni - Hos Geldiniz!", welcome)
-                self.send_json({"ok":True,"msg":"Kaydiniz alindi! Hos geldin maili gonderildi."})
+                # E-posta gondermeyi dene — basarisiz olsa bile abone kaydedildi
+                try:
+                    cfg = load_cfg()
+                    domain = cfg.get("platform_domain","http://localhost:5001")
+                    unsub_url = f"{domain}/api/unsubscribe?token={token}"
+                    welcome = f'<html><body style="font-family:sans-serif;background:#060d18;color:#c8d8eb;padding:40px;max-width:500px;margin:0 auto"><h2 style="color:#60a5fa">TFSAnaliz Bültenine Hoş Geldiniz!</h2><p>Haftalık sektör analizi artık doğrudan e-postanızda.</p><p style="font-size:12px;color:#475569;margin-top:32px">Aboneliği iptal: <a href="{unsub_url}" style="color:#6b8cae">{unsub_url}</a></p></body></html>'
+                    send_smtp([email], "TFSAnaliz Bülteni - Hoş Geldiniz!", welcome)
+                except Exception:
+                    pass  # E-posta basarisiz olsa da abone kaydedildi
+                self.send_json({"ok":True,"msg":"Aboneliğiniz alındı! Bültenlerimizi takip edin."})
             except Exception as e:
                 self.send_json({"ok":False,"msg":str(e)})
+            return
+
+        if not is_valid_session(self.headers.get("Cookie","")):
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.end_headers(); return
 
         elif self.path == "/api/send_newsletter":
             try:
