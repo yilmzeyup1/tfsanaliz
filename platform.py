@@ -17,6 +17,56 @@ SUBS_PATH  = os.path.join(BASE, "subscribers.json")
 CFG_PATH   = os.path.join(BASE, "config.json")
 TMPL_PATH  = os.path.join(BASE, "platform_template.html")
 
+
+# --- Oturum Yonetimi ---
+SESSIONS = {}
+PLATFORM_PASSWORD = os.environ.get("PLATFORM_PASSWORD", "tfsanaliz2026")
+
+LOGIN_PAGE = """<!DOCTYPE html>
+<html lang="tr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TFSAnaliz — Giriş</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060d18;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif}
+.card{background:#0d1a2d;border:1px solid #1a3356;border-radius:16px;padding:48px 40px;width:360px;text-align:center}
+.logo{font-size:28px;font-weight:700;color:#f0f6ff;margin-bottom:8px}
+.sub{font-size:13px;color:#6b8cae;margin-bottom:32px}
+input{width:100%;padding:12px 16px;background:#060d18;border:1px solid #1a3356;border-radius:8px;color:#f0f6ff;font-size:14px;margin-bottom:16px;outline:none}
+input:focus{border-color:#3b82f6}
+button{width:100%;padding:13px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+button:hover{background:#2563eb}
+.err{color:#f87171;font-size:13px;margin-bottom:12px}
+</style></head>
+<body><div class="card">
+<div class="logo">TFSAnaliz</div>
+<div class="sub">Tasarruf Finansman Sektör Analizi</div>
+{error}
+<form method="POST" action="/login">
+<input type="password" name="password" placeholder="Şifre" autofocus required>
+<button type="submit">Giriş Yap</button>
+</form>
+</div></body></html>"""
+
+def create_session():
+    token = secrets.token_hex(24)
+    SESSIONS[token] = datetime.now()
+    return token
+
+def is_valid_session(cookie_header):
+    if not cookie_header: return False
+    for part in cookie_header.split(";"):
+        part = part.strip()
+        if part.startswith("tfs_session="):
+            token = part[12:]
+            if token in SESSIONS:
+                if datetime.now() - SESSIONS[token] < timedelta(hours=24):
+                    SESSIONS[token] = datetime.now()
+                    return True
+                else:
+                    del SESSIONS[token]
+    return False
+
 def load_data():
     with open(DATA_PATH, encoding="utf-8") as f: return json.load(f)
 
@@ -211,6 +261,19 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        cookie = self.headers.get("Cookie","")
+        if self.path == "/login":
+            self.send_html(LOGIN_PAGE.replace("{error}",""))
+            return
+        if self.path == "/logout":
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.send_header("Set-Cookie","tfs_session=; Max-Age=0; Path=/")
+            self.end_headers(); return
+        if not is_valid_session(cookie):
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.end_headers(); return
         if self.path == "/":
             self.send_html(load_template())
         elif self.path == "/api/data":
@@ -229,6 +292,27 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get("Content-Length",0))
         body   = self.rfile.read(length) if length else b""
+
+        if self.path == "/login":
+            try:
+                params = urllib.parse.parse_qs(body.decode())
+                pw = params.get("password",[""])[0]
+                if pw == PLATFORM_PASSWORD:
+                    token = create_session()
+                    self.send_response(302)
+                    self.send_header("Location","/")
+                    self.send_header("Set-Cookie",f"tfs_session={token}; Path=/; HttpOnly; Max-Age=86400")
+                    self.end_headers()
+                else:
+                    self.send_html(LOGIN_PAGE.replace("{error}",'<div class="err">Hatalı şifre</div>'))
+            except Exception as e:
+                self.send_html(LOGIN_PAGE.replace("{error}",f'<div class="err">{e}</div>'))
+            return
+
+        if not is_valid_session(self.headers.get("Cookie","")):
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.end_headers(); return
 
         if self.path == "/api/subscribe":
             try:
