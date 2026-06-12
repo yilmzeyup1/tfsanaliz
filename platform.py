@@ -560,13 +560,19 @@ class Handler(BaseHTTPRequestHandler):
                 cfg  = load_cfg()
                 domain = cfg.get("platform_domain","http://localhost:5001")
                 ok_count = 0
+                errors = []
                 for sub in subs["list"]:
                     unsub_url = f"{domain}/api/unsubscribe?token={sub['token']}"
                     html = build_newsletter_html(news.get("items",[]), news.get("ai_analysis",""))
                     html = html.replace("PLATFORM_URL", domain).replace("UNSUBSCRIBE_URL", unsub_url)
-                    ok, _ = send_smtp([sub["email"]], f"TFSAnaliz Haftalik Bulten - {datetime.now().strftime('%d.%m.%Y')}", html)
+                    ok, err_msg = send_smtp([sub["email"]], f"TFSAnaliz Haftalik Bulten - {datetime.now().strftime('%d.%m.%Y')}", html)
                     if ok: ok_count += 1
-                self.send_json({"ok":True,"msg":f"Bulten {ok_count}/{len(subs['list'])} kisiye gonderildi"})
+                    else: errors.append(err_msg)
+                if ok_count == len(subs["list"]):
+                    self.send_json({"ok":True,"msg":f"✓ Bulten {ok_count}/{len(subs['list'])} kisiye gonderildi"})
+                else:
+                    hata = errors[0] if errors else "bilinmeyen hata"
+                    self.send_json({"ok":False,"msg":f"Gonderilemedi ({ok_count}/{len(subs['list'])}): {hata}"})
             except Exception as e:
                 self.send_json({"ok":False,"msg":str(e)})
 
