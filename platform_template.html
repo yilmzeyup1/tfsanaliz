@@ -281,48 +281,80 @@ function runCompare(){
   if(ids.length<2){alert("En az 2 sirket secin.");return}
   const comps=DATA.sirketler.filter(c=>ids.includes(c.id));
   const fmtMn=v=>v!=null?Number(v).toLocaleString("tr-TR",{maximumFractionDigits:1})+" Mn ₺":"—";
-  const karRenk=v=>v==null?"var(--text2)":v>=0?"#22c55e":"#ef4444";
-  document.getElementById("compare-result").innerHTML=comps.map(c=>{
-    const hasF=c.toplam_varlik_mn_tl!=null;
-    const finans=hasF?`
-      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
-        <div style="font-size:11px;margin-bottom:10px;display:flex;align-items:center;gap:6px">
-          <span style="color:var(--text);font-weight:700">&#128202; Finansal Veriler</span>
-          <span style="margin-left:auto;color:var(--text2);font-size:10px">${c.donem||""} &nbsp;·&nbsp; Güncelleme: ${c.finansal_guncelleme||""}</span>
-        </div>
-        <div class="cr-grid">
-          ${[
-            ["Toplam Varlık",fmtMn(c.toplam_varlik_mn_tl),"#60a5fa"],
-            ["TF Alacakları",fmtMn(c.tf_alacaklari_mn_tl),"#a78bfa"],
-            ["TF Borçları",fmtMn(c.tf_borclar_mn_tl),"#f59e0b"],
-            ["Özkaynaklar",fmtMn(c.ozkaynaklar_mn_tl),"#34d399"],
-            ["Esas Faal. Gelirleri",fmtMn(c.esas_faaliyet_gelirleri_mn_tl),"#38bdf8"],
-            ["EBITDA",fmtMn(c.ebitda_mn_tl),"#818cf8"]
-          ].map(([l,v,col])=>`<div class="cr-metric" style="border-left-color:${col}"><div class="cr-label">${l}</div><div class="cr-value" style="font-size:14px">${v}</div></div>`).join("")}
-          <div class="cr-metric" style="border-left-color:${karRenk(c.donem_kari_mn_tl)}">
-            <div class="cr-label">Dönem Karı / Zararı</div>
-            <div class="cr-value" style="font-size:14px;color:${karRenk(c.donem_kari_mn_tl)}">${fmtMn(c.donem_kari_mn_tl)}</div>
-          </div>
-        </div>
-      </div>`
-    :`<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;font-size:12px;color:var(--text2)">
-        &#128196; Finansal veri henüz yüklenmedi &mdash; <em>Veri Güncelle</em> sekmesinden BDDK denetim raporunu yükleyin.
-      </div>`;
-    return `<div class="compare-row">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span class="comp-dot" style="background:${c.logo_renk};width:14px;height:14px;border-radius:50%;display:inline-block"></span>
-        <strong style="color:var(--white);font-size:15px">${c.tam_ad}</strong>
-        <span class="pill pill-blue" style="margin-left:auto">${c.odak}</span>
+  const fmtN=v=>v!=null?Number(v).toLocaleString("tr-TR"):"—";
+
+  // Her sayısal alanda kazananı bul (en yüksek = iyi, dönem_kari da en yüksek)
+  function bestIdx(key){
+    let best=-Infinity,idx=-1;
+    comps.forEach((c,i)=>{if(c[key]!=null&&Number(c[key])>best){best=Number(c[key]);idx=i;}});
+    return idx;
+  }
+
+  // Satır tanımları: [etiket, değer fonksiyonu, kazanan_key (null=yok), kazanan_yön ('high'/'low')]
+  const sections=[
+    {title:"OPERATİF",rows:[
+      ["Aktif Sözleşme",c=>fmtN(c.aktif_sozlesme)+" adet","aktif_sozlesme","high"],
+      ["Pazar Payı",c=>c.pazar_payi+"%","pazar_payi","high"],
+      ["Teslim Konut",c=>fmtN(c.teslim_konut)+" adet","teslim_konut","high"],
+      ["Max Vade",c=>c.max_vade_ay+" ay",null,null],
+      ["Kuruluş",c=>c.kurulus,null,null],
+    ]},
+    {title:"FİNANSAL (BDDK Denetim Raporu)",rows:[
+      ["Dönem",c=>c.donem||"—",null,null],
+      ["Toplam Varlık",c=>fmtMn(c.toplam_varlik_mn_tl),"toplam_varlik_mn_tl","high"],
+      ["TF Alacakları",c=>fmtMn(c.tf_alacaklari_mn_tl),"tf_alacaklari_mn_tl","high"],
+      ["TF Borçları",c=>fmtMn(c.tf_borclar_mn_tl),"tf_borclar_mn_tl","low"],
+      ["Özkaynaklar",c=>fmtMn(c.ozkaynaklar_mn_tl),"ozkaynaklar_mn_tl","high"],
+      ["Esas Faal. Gelirleri",c=>fmtMn(c.esas_faaliyet_gelirleri_mn_tl),"esas_faaliyet_gelirleri_mn_tl","high"],
+      ["Vergi Öncesi Kar",c=>fmtMn(c.vergi_oncesi_kar_mn_tl),"vergi_oncesi_kar_mn_tl","high"],
+      ["EBITDA",c=>fmtMn(c.ebitda_mn_tl),"ebitda_mn_tl","high"],
+      ["Dönem Karı / Zararı",c=>{const v=c.donem_kari_mn_tl;return v!=null?`<span style="color:${v>=0?'#22c55e':'#ef4444'}">${fmtMn(v)}</span>`:"—"},"donem_kari_mn_tl","high"],
+    ]}
+  ];
+
+  // Başlık satırı
+  let html=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+  <thead><tr>
+    <th style="text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;width:200px;border-bottom:1px solid var(--border)">METRİK</th>
+    ${comps.map(c=>`<th style="text-align:center;padding:10px 14px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:3px">
+        <span style="width:10px;height:10px;border-radius:50%;background:${c.logo_renk};display:inline-block"></span>
+        <span style="color:var(--white);font-weight:700;font-size:12px">${c.ad}</span>
       </div>
-      <div class="cr-grid">
-        ${[["Aktif Sözleşme",fmt(c.aktif_sozlesme)+" adet"],["Pazar Payı",c.pazar_payi+"%"],["Teslim Konut",fmt(c.teslim_konut)+" adet"],["Max Vade",c.max_vade_ay+" ay"],["Kuruluş",c.kurulus]].map(([l,v])=>`<div class="cr-metric"><div class="cr-label">${l}</div><div class="cr-value">${v}</div></div>`).join("")}
-      </div>
-      <div style="margin-top:10px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:10px">
-        <strong style="color:var(--text)">Kampanya:</strong> ${c.kampanya}
-      </div>
-      ${finans}
-    </div>`;
-  }).join("");
+      <div style="font-size:10px;color:var(--text2)">${c.odak}</div>
+    </th>`).join("")}
+  </tr></thead><tbody>`;
+
+  sections.forEach(sec=>{
+    html+=`<tr><td colspan="${comps.length+1}" style="padding:14px 14px 6px;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.02)">${sec.title}</td></tr>`;
+    sec.rows.forEach(([label,valFn,key,dir])=>{
+      // Kazananı bul
+      let winIdx=-1;
+      if(key&&dir){
+        if(dir==="high") winIdx=bestIdx(key);
+        else{ // low: en küçük kazanır
+          let best=Infinity,bi=-1;
+          comps.forEach((c,i)=>{if(c[key]!=null&&Number(c[key])<best){best=Number(c[key]);bi=i;}});
+          winIdx=bi;
+        }
+      }
+      html+=`<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+        <td style="padding:9px 14px;color:var(--text2);font-size:12px">${label}</td>
+        ${comps.map((c,i)=>{
+          const isWin=winIdx===i;
+          return `<td style="text-align:center;padding:9px 14px;font-weight:${isWin?'700':'500'};color:var(--white);background:${isWin?'rgba(34,197,94,.1)':'transparent'};border-radius:4px">${valFn(c)}</td>`;
+        }).join("")}
+      </tr>`;
+    });
+  });
+
+  // Kampanya satırı
+  html+=`<tr><td colspan="${comps.length+1}" style="padding:14px 14px 6px;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.02)">KAMPANYA</td></tr>
+  <tr><td style="padding:9px 14px;color:var(--text2);font-size:12px">Güncel Kampanya</td>
+  ${comps.map(c=>`<td style="text-align:center;padding:9px 14px;font-size:12px;color:var(--text)">${c.kampanya}</td>`).join("")}</tr>`;
+
+  html+=`</tbody></table></div>`;
+  document.getElementById("compare-result").innerHTML=html;
 }
 async function loadNews(){
   try{
@@ -425,7 +457,8 @@ function showExtracted(ex){
     tf_borclar_mn_tl:"TF Borçları (Mn TL)",
     ozkaynaklar_mn_tl:"Özkaynaklar (Mn TL)",
     esas_faaliyet_gelirleri_mn_tl:"Esas Faaliyet Gelirleri (Mn TL)",
-    ebitda_mn_tl:"EBITDA (Mn TL)",
+    vergi_oncesi_kar_mn_tl:"Vergi Öncesi Kar (Mn TL)",
+    ebitda_mn_tl:"EBITDA — hesaplanan (Mn TL)",
     donem_kari_mn_tl:"Dönem Karı/Zararı (Mn TL)"
   };
   const rows=Object.entries(labels).map(([k,l])=>{
