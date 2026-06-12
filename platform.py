@@ -274,4 +274,17 @@ class Handler(BaseHTTPRequestHandler):
             threading.Thread(target=refresh_news_task, daemon=True).start()
             self.send_json({"ok":True})
         else:
-            self.send_response(404); self.end_head
+            self.send_response(404); self.end_headers()
+
+if __name__ == "__main__":
+    PORT = int(os.environ.get("PORT", 8080))
+    print("=" * 52, flush=True)
+    print("  TFSAnaliz - Arastirma Platformu", flush=True)
+    print(f"  http://0.0.0.0:{PORT}", flush=True)
+    print("=" * 52, flush=True)
+    threading.Thread(target=refresh_news_task, daemon=True).start()
+    server = HTTPServer(("0.0.0.0", PORT), Handler)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n  Durduruldu.", flush=True)
