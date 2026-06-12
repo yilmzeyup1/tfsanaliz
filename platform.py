@@ -159,6 +159,48 @@ def claude_call(prompt, max_tokens=1500):
 news_lock  = threading.Lock()
 news_state = {"running": False}
 
+# Haftalik bulten zamanlayici — Pazartesi (0) ve Carsamba (2), saat 09:00 TR (UTC+3)
+bulten_state = {"last_sent": None}  # "2026-06-16" formatinda
+
+def bulten_scheduler():
+    """Her dakika kontrol eder; Pazartesi ve Carsamba 09:00 TR'de otomatik bulten gonderir."""
+    import time
+    while True:
+        try:
+            now_utc = datetime.utcnow()
+            now_tr  = now_utc + timedelta(hours=3)  # Turkiye saati UTC+3
+            weekday = now_tr.weekday()  # 0=Pazartesi, 2=Carsamba
+            today   = now_tr.strftime("%Y-%m-%d")
+            if weekday in (0, 2) and now_tr.hour == 9 and now_tr.minute == 0:
+                if bulten_state["last_sent"] != today:
+                    bulten_state["last_sent"] = today
+                    print(f"  [BULTEN] Otomatik bulten baslatiliyor ({now_tr.strftime('%A %H:%M TR')})...", flush=True)
+                    threading.Thread(target=_send_bulten_task, daemon=True).start()
+        except Exception as e:
+            print(f"  [BULTEN-HATA] {e}", flush=True)
+        time.sleep(60)
+
+def _send_bulten_task():
+    """Tum abonelere guncel bulteni gonderir."""
+    try:
+        subs = load_subscribers()
+        if not subs["list"]:
+            print("  [BULTEN] Abone yok, atlandi.", flush=True); return
+        news = get_or_refresh_news()
+        cfg  = load_cfg()
+        domain = cfg.get("platform_domain", "http://localhost:8080")
+        ok_count = 0
+        for sub in subs["list"]:
+            unsub_url = f"{domain}/api/unsubscribe?token={sub['token']}"
+            html = build_newsletter_html(news.get("items", []), news.get("ai_analysis", ""))
+            html = html.replace("PLATFORM_URL", domain).replace("UNSUBSCRIBE_URL", unsub_url)
+            ok, msg = send_smtp([sub["email"]], f"TFSAnaliz Haftalik Bulten - {datetime.now().strftime('%d.%m.%Y')}", html)
+            if ok: ok_count += 1
+            else: print(f"  [BULTEN] {sub['email']} gonderilmedi: {msg}", flush=True)
+        print(f"  [BULTEN] Tamamlandi: {ok_count}/{len(subs['list'])} kisi.", flush=True)
+    except Exception as e:
+        print(f"  [BULTEN-HATA] {e}", flush=True)
+
 def refresh_news_task():
     with news_lock:
         if news_state["running"]: return
@@ -221,13 +263,25 @@ def send_smtp(to_list, subject, html_body):
     msg["Subject"] = subject; msg["From"] = f"TFSAnaliz <{sender}>"; msg["To"] = ", ".join(to_list)
     msg.attach(MIMEText("HTML destekli istemci kullaniniz.", "plain","utf-8"))
     msg.attach(MIMEText(html_body, "html","utf-8"))
-    try:
-        ctx = ssl.create_default_context()
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx, timeout=8) as s:
-            s.login(sender, pw); s.sendmail(sender, to_list, msg.as_bytes())
-        return True, f"{len(to_list)} kisiye gonderildi"
-    except smtplib.SMTPAuthenticationError: return False, "Gmail App Password hatali"
-    except Exception as e: return False, str(e)
+    # 587 (STARTTLS) dene, basarisizsa 465 (SSL) dene
+    last_err = None
+    for port, use_ssl in [(587, False), (465, True)]:
+        try:
+            if use_ssl:
+                ctx = ssl.create_default_context()
+                with smtplib.SMTP_SSL("smtp.gmail.com", port, context=ctx, timeout=10) as s:
+                    s.login(sender, pw); s.sendmail(sender, to_list, msg.as_bytes())
+            else:
+                with smtplib.SMTP("smtp.gmail.com", port, timeout=10) as s:
+                    s.ehlo(); s.starttls(context=ssl.create_default_context()); s.ehlo()
+                    s.login(sender, pw); s.sendmail(sender, to_list, msg.as_bytes())
+            return True, f"{len(to_list)} kisiye gonderildi (port {port})"
+        except smtplib.SMTPAuthenticationError:
+            return False, "Gmail App Password hatali"
+        except Exception as e:
+            last_err = e
+            continue
+    return False, str(last_err)
 
 def build_newsletter_html(news_items, ai_analysis):
     now   = datetime.now().strftime("%d.%m.%Y")
@@ -568,6 +622,8 @@ if __name__ == "__main__":
     print(f"  http://0.0.0.0:{PORT}", flush=True)
     print("=" * 52, flush=True)
     threading.Thread(target=refresh_news_task, daemon=True).start()
+    threading.Thread(target=bulten_scheduler, daemon=True).start()
+    print("  Bulten zamanlayici: Pzt & Cars 09:00 TR", flush=True)
     server = HTTPServer(("0.0.0.0", PORT), Handler)
     try:
         server.serve_forever()

@@ -263,6 +263,17 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
       </div>
     </div>
 
+    <div style="background:#0d1a2d;border:1px solid #1a3356;border-radius:14px;padding:20px 28px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700;color:#f0f6ff;margin-bottom:8px">&#128231; Bülten Gönder</div>
+      <div style="font-size:12px;color:#6b8cae;line-height:1.7;margin-bottom:14px">
+        Tüm abonelere güncel haber özeti ve Claude AI analizini içeren bülteni gönderir.
+      </div>
+      <button onclick="sendNewsletter()" style="padding:10px 20px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.35);color:#93c5fd;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;letter-spacing:.01em" onmouseover="this.style.background='rgba(59,130,246,.18)'" onmouseout="this.style.background='rgba(59,130,246,.1)'">
+        &#9993; Bülteni Şimdi Gönder
+      </button>
+      <div id="newsletter-status" style="margin-top:10px;font-size:13px;min-height:18px"></div>
+    </div>
+
     <div id="extract-result" style="display:none;background:#0d1a2d;border:1px solid #166534;border-radius:14px;padding:24px 28px">
       <div style="font-size:13px;font-weight:700;color:#4ade80;margin-bottom:14px">&#10003; Çıkarılan Finansal Veriler</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px">
@@ -480,6 +491,23 @@ function switchTab(name,el){
   el.classList.add("active");
   document.getElementById("tab-"+name).classList.add("active");
   if(name==="haberler")loadNews();
+}
+
+// ── Bülten Gönder ──
+async function sendNewsletter(){
+  const btn=event.target;const status=document.getElementById("newsletter-status");
+  btn.disabled=true;btn.textContent="Gönderiliyor…";
+  status.style.color="var(--text2)";status.textContent="Haberler hazırlanıyor ve abonelere gönderiliyor…";
+  try{
+    const r=await fetch("/api/send_newsletter",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+    const d=await r.json();
+    status.style.color=d.ok?"#22c55e":"#ef4444";
+    status.textContent=d.msg;
+  }catch(e){
+    status.style.color="#ef4444";status.textContent="Bağlantı hatası: "+e.message;
+  }finally{
+    btn.disabled=false;btn.textContent="✉ Bülteni Şimdi Gönder";
+  }
 }
 
 // ── Veri Dışa Aktarma ──
