@@ -1,0 +1,3 @@
+# TF Research Platform — Bağımlılıklar
+# Harici kütüphane gerektirmez, tüm Python stdlib
+# Railway deployment için gerekli minimum dosya
