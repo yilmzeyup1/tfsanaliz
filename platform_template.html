@@ -156,15 +156,15 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
     </div>
   </div>
   <div class="section-title">
-    <span>&#128203; Şirket Karşılaştırma Tablosu</span>
-    <span style="font-size:11px;font-weight:400;color:var(--text2)">Kaynak: BDDK Denetim &amp; Faaliyet Raporları · 31.12.2025 · <span id="veri-tarihi">—</span></span>
+    <span>&#128203; Finansal Karşılaştırma Tablosu — 31.12.2025</span>
+    <span style="font-size:11px;font-weight:400;color:var(--text2)">BDDK Bağımsız Denetim Raporları · Tüm değerler Mn TL · Güncelleme: <span id="veri-tarihi">—</span></span>
   </div>
   <div class="table-wrap">
     <table><thead><tr>
       <th>Şirket</th><th>Ana Ortak</th><th>Odak</th>
-      <th class="num">Aktif Sözleşme</th><th class="num">Toplam Varlık (Mn TL)</th>
-      <th class="num">Teslim (2025)</th><th class="num">Max Vade</th>
-      <th>Güncel Kampanya</th><th>Durum</th>
+      <th class="num">Toplam Varlık</th><th class="num">TF Alacakları</th>
+      <th class="num">Özkaynaklar</th><th class="num">Esas Faal. Gel.</th>
+      <th class="num">Dönem Karı</th><th>Durum</th>
     </tr></thead><tbody id="table-body"></tbody></table>
   </div>
   <div class="charts-grid">
@@ -294,15 +294,22 @@ async function loadData(){
   renderTable();renderCharts();renderCompareSelectors();renderMevzuat();
 }
 function renderTable(){
+  const fmtMn=v=>v!=null?`<strong style="color:var(--white)">${Number(v).toLocaleString("tr-TR",{maximumFractionDigits:0})}</strong><span style="color:var(--text2);font-size:11px"> Mn ₺</span>`:'<span style="color:var(--text2)">—</span>';
+  const fmtKar=v=>{if(v==null)return '<span style="color:var(--text2)">—</span>';const n=Number(v);return `<strong style="color:${n>=0?'#22c55e':'#ef4444'}">${n.toLocaleString("tr-TR",{maximumFractionDigits:0})}</strong><span style="color:var(--text2);font-size:11px"> Mn ₺</span>`};
   document.getElementById("table-body").innerHTML=DATA.sirketler.map(c=>`<tr>
-    <td><span class="comp-dot" style="background:${c.logo_renk}"></span><a href="${c.url}" target="_blank" class="comp-link">${c.ad}</a><div class="comp-brand" style="margin-left:18px">${c.marka}</div></td>
-    <td style="color:var(--text2)">${c.ana_ortak}</td>
+    <td>
+      <span class="comp-dot" style="background:${c.logo_renk}"></span>
+      <a href="${c.url}" target="_blank" class="comp-link">${c.ad}</a>
+      <div class="comp-brand" style="margin-left:18px">${c.marka}</div>
+      ${c.donem?`<div style="margin-left:18px;font-size:10px;color:var(--text2);margin-top:2px">📅 ${c.donem}</div>`:'<div style="margin-left:18px;font-size:10px;color:#ef4444;margin-top:2px">veri yok</div>'}
+    </td>
+    <td style="color:var(--text2);font-size:12px">${c.ana_ortak}</td>
     <td><span class="pill pill-blue">${c.odak}</span></td>
-    <td class="num">${c.aktif_sozlesme!=null?Number(c.aktif_sozlesme).toLocaleString("tr-TR"):'<span style="color:var(--text2)">—</span>'}</td>
-    <td class="num">${c.toplam_varlik_mn_tl!=null?Number(c.toplam_varlik_mn_tl).toLocaleString("tr-TR",{maximumFractionDigits:0})+' Mn ₺':'<span style="color:var(--text2)">—</span>'}</td>
-    <td class="num">${c.teslim_konut!=null?Number(c.teslim_konut).toLocaleString("tr-TR"):'<span style="color:var(--text2)">—</span>'}</td>
-    <td class="num">${c.max_vade_ay} ay</td>
-    <td style="max-width:200px;white-space:normal;font-size:12px;color:var(--text2)">${c.kampanya}</td>
+    <td class="num">${fmtMn(c.toplam_varlik_mn_tl)}</td>
+    <td class="num">${fmtMn(c.tf_alacaklari_mn_tl)}</td>
+    <td class="num">${fmtMn(c.ozkaynaklar_mn_tl)}</td>
+    <td class="num">${fmtMn(c.esas_faaliyet_gelirleri_mn_tl)}</td>
+    <td class="num">${fmtKar(c.donem_kari_mn_tl)}</td>
     <td><span class="pill pill-green">${c.durum}</span></td>
   </tr>`).join("");
 }
