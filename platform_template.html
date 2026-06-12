@@ -201,6 +201,22 @@ td{padding:11px 14px;white-space:nowrap}td.num{text-align:right}
       <div id="upload-status" style="margin-top:14px;font-size:13px;min-height:18px"></div>
     </div>
 
+    <div style="background:#0d1a2d;border:1px solid #1a3356;border-radius:14px;padding:20px 28px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700;color:#f0f6ff;margin-bottom:8px">&#128190; Verileri Kalıcı Kaydet</div>
+      <div style="font-size:12px;color:#6b8cae;line-height:1.7;margin-bottom:14px">
+        Tüm şirketlerin PDF'lerini yükledikten sonra aşağıdaki butona tıklayın. İndirilen
+        <strong style="color:#c8d8eb">platform_data.json</strong> dosyasını proje klasörüne kopyalayıp
+        GitHub'a push edin — veriler Railway yeniden başlasa bile kalıcı olur.
+      </div>
+      <button onclick="exportData()" style="padding:10px 20px;background:#0f2a0f;border:1px solid #166534;color:#4ade80;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">
+        &#11015; platform_data.json İndir
+      </button>
+      <div style="margin-top:10px;font-size:11px;color:#475569">
+        İndirdikten sonra → proje klasörüne kopyala → CMD'de:
+        <code style="background:#060d18;padding:2px 6px;border-radius:4px;color:#94a3b8">git add platform_data.json && git commit -m "veri guncelle" && git push origin HEAD:master</code>
+      </div>
+    </div>
+
     <div id="extract-result" style="display:none;background:#0d1a2d;border:1px solid #166534;border-radius:14px;padding:24px 28px">
       <div style="font-size:13px;font-weight:700;color:#4ade80;margin-bottom:14px">&#10003; Çıkarılan Finansal Veriler</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px">
@@ -340,6 +356,17 @@ function switchTab(name,el){
   el.classList.add("active");
   document.getElementById("tab-"+name).classList.add("active");
   if(name==="haberler")loadNews();
+}
+
+// ── Veri Dışa Aktarma ──
+async function exportData(){
+  const r=await fetch("/api/data");
+  const d=await r.json();
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="platform_data.json";
+  a.click();
 }
 
 // ── PDF Yükleme ──
