@@ -565,4 +565,84 @@ class Handler(BaseHTTPRequestHandler):
                     try:
                         cfg2 = load_cfg()
                         domain2 = cfg2.get("platform_domain","http://localhost:5001")
-                        unsub_ur
+                        unsub_url2 = f"{domain2}/api/unsubscribe?token={tok}"
+                        welcome2 = f'<html><body style="font-family:sans-serif;background:#060d18;color:#c8d8eb;padding:40px;max-width:500px;margin:0 auto"><h2 style="color:#60a5fa">TFSAnaliz Bültenine Hos Geldiniz!</h2><p>Haftalik sektor analizi artik dogrudan e-postanizda.</p><p style="font-size:12px;color:#475569;margin-top:32px">Aboneligi iptal: <a href="{unsub_url2}" style="color:#6b8cae">{unsub_url2}</a></p></body></html>'
+                        send_smtp([em], "TFSAnaliz Bulteni - Hos Geldiniz!", welcome2)
+                    except Exception:
+                        pass
+                threading.Thread(target=_send_welcome, args=(email, token), daemon=True).start()
+                self.send_json({"ok":True,"msg":"Aboneliğiniz alındı! Bültenlerimizi takip edin."})
+            except Exception as e:
+                self.send_json({"ok":False,"msg":str(e)})
+            return
+
+        if not is_valid_session(self.headers.get("Cookie","")):
+            self.send_response(302)
+            self.send_header("Location","/login")
+            self.end_headers(); return
+
+        elif self.path == "/api/send_newsletter":
+            try:
+                subs = load_subscribers()
+                if not subs["list"]:
+                    self.send_json({"ok":False,"msg":"Abone listesi bos"}); return
+                threading.Thread(target=_send_bulten_task, daemon=True).start()
+                self.send_json({"ok":True,"msg":f"✓ Bülten gönderimi başlatıldı ({len(subs['list'])} abone). Railway loglarından takip edebilirsiniz."})
+            except Exception as e:
+                self.send_json({"ok":False,"msg":str(e)})
+
+        elif self.path == "/api/refresh_news":
+            threading.Thread(target=refresh_news_task, daemon=True).start()
+            self.send_json({"ok":True})
+
+        elif self.path == "/api/upload_pdf":
+            try:
+                ct = self.headers.get("Content-Type", "")
+                if "multipart/form-data" not in ct:
+                    self.send_json({"ok": False, "msg": "multipart/form-data bekleniyor"}); return
+                pdf_bytes, filename, err = parse_multipart_file(body, ct)
+                if err:
+                    self.send_json({"ok": False, "msg": err}); return
+                if not filename or not filename.lower().endswith(".pdf"):
+                    self.send_json({"ok": False, "msg": "Lutfen .pdf uzantili dosya yukleyin"}); return
+                pdf_text, err = extract_pdf_text(pdf_bytes, range(4, 20))
+                if err:
+                    self.send_json({"ok": False, "msg": err}); return
+                if not pdf_text.strip():
+                    pdf_text, err = extract_pdf_text(pdf_bytes)
+                    if err or not (pdf_text or "").strip():
+                        self.send_json({"ok": False, "msg": "PDF metnine erisilemedi (taranmis goruntu PDF olabilir)"}); return
+                extracted, err = extract_financials_with_claude(pdf_text, filename)
+                if err:
+                    self.send_json({"ok": False, "msg": err}); return
+                ok, info = update_company_financials(extracted)
+                if not ok:
+                    self.send_json({"ok": False, "msg": info, "extracted": extracted}); return
+                self.send_json({"ok": True, "msg": f"✓ {info} finansal verileri basariyla guncellendi.", "extracted": extracted})
+            except Exception as e:
+                self.send_json({"ok": False, "msg": f"Sunucu hatasi: {e}"})
+
+        else:
+            self.send_response(404); self.end_headers()
+
+if __name__ == "__main__":
+    PORT = int(os.environ.get("PORT", 8080))
+    print("=" * 52, flush=True)
+    print("  TFSAnaliz - Arastirma Platformu", flush=True)
+    print(f"  http://0.0.0.0:{PORT}", flush=True)
+    print("=" * 52, flush=True)
+    threading.Thread(target=refresh_news_task, daemon=True).start()
+    threading.Thread(target=bulten_scheduler, daemon=True).start()
+    print("  Bulten zamanlayici: Pzt & Cars 09:00 TR", flush=True)
+    server = HTTPServer(("0.0.0.0", PORT), Handler)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n  Durduruldu.", flush=True)
+t=bulten_scheduler, daemon=True).start()
+    print("  Bulten zamanlayici: Pzt & Cars 09:00 TR", flush=True)
+    server = HTTPServer(("0.0.0.0", PORT), Handler)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n  Durduruldu.", flush=True)
