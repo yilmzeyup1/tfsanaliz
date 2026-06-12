@@ -256,13 +256,10 @@ def get_or_refresh_news():
     return cache
 
 def send_smtp(to_list, subject, html_body):
-    """Resend API (HTTPS) veya Gmail SMTP ile mail gonderir. Resend onceliklidir."""
+    """Resend API (HTTPS) veya Gmail SMTP ile mail gonderir."""
     cfg = load_cfg()
-
-    # --- Resend API (Railway SMTP bloge karsı tercihli yol) ---
     resend_key = os.environ.get("RESEND_API_KEY", cfg.get("resend_api_key", ""))
     if resend_key:
-        # Resend ucretsiz planda sadece onboarding@resend.dev veya dogrulanmis domain
         payload = json.dumps({
             "from": "TFSAnaliz <onboarding@resend.dev>",
             "to": to_list,
@@ -277,8 +274,7 @@ def send_smtp(to_list, subject, html_body):
         )
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
-                resp_body = resp.read().decode("utf-8", errors="ignore")
-                print(f"  [RESEND] OK: {resp_body}", flush=True)
+                print(f"  [RESEND] OK: {resp.read().decode()[:100]}", flush=True)
                 return True, "Resend ile gonderildi"
         except urllib.error.HTTPError as e:
             err_body = e.read().decode("utf-8", errors="ignore")
@@ -287,8 +283,6 @@ def send_smtp(to_list, subject, html_body):
         except Exception as e:
             print(f"  [RESEND] Exception: {e}", flush=True)
             return False, f"Resend hatasi: {e}"
-
-    # --- Gmail SMTP (fallback, Railway'de genellikle bloklu) ---
     ec = cfg.get("email", {})
     sender, pw = ec.get("sender",""), ec.get("app_password","")
     if not sender or not pw: return False, "Ne RESEND_API_KEY ne de Gmail ayarlari var"
@@ -587,7 +581,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not subs["list"]:
                     self.send_json({"ok":False,"msg":"Abone listesi bos"}); return
                 threading.Thread(target=_send_bulten_task, daemon=True).start()
-                self.send_json({"ok":True,"msg":f"✓ Bülten gönderimi başlatıldı ({len(subs['list'])} abone). Railway loglarından takip edebilirsiniz."})
+                self.send_json({"ok":True,"msg":f"Bulten gonderimi basladi ({len(subs['list'])} abone)"})
             except Exception as e:
                 self.send_json({"ok":False,"msg":str(e)})
 
@@ -600,25 +594,36 @@ class Handler(BaseHTTPRequestHandler):
                 ct = self.headers.get("Content-Type", "")
                 if "multipart/form-data" not in ct:
                     self.send_json({"ok": False, "msg": "multipart/form-data bekleniyor"}); return
+
                 pdf_bytes, filename, err = parse_multipart_file(body, ct)
                 if err:
                     self.send_json({"ok": False, "msg": err}); return
                 if not filename or not filename.lower().endswith(".pdf"):
                     self.send_json({"ok": False, "msg": "Lutfen .pdf uzantili dosya yukleyin"}); return
+
+                # Finansal sayfalar genellikle 5-20 arasindadir; once orada dene
                 pdf_text, err = extract_pdf_text(pdf_bytes, range(4, 20))
                 if err:
                     self.send_json({"ok": False, "msg": err}); return
                 if not pdf_text.strip():
+                    # Tum sayfaları tara
                     pdf_text, err = extract_pdf_text(pdf_bytes)
                     if err or not (pdf_text or "").strip():
                         self.send_json({"ok": False, "msg": "PDF metnine erisilemedi (taranmis goruntu PDF olabilir)"}); return
+
                 extracted, err = extract_financials_with_claude(pdf_text, filename)
                 if err:
                     self.send_json({"ok": False, "msg": err}); return
+
                 ok, info = update_company_financials(extracted)
                 if not ok:
                     self.send_json({"ok": False, "msg": info, "extracted": extracted}); return
-                self.send_json({"ok": True, "msg": f"✓ {info} finansal verileri basariyla guncellendi.", "extracted": extracted})
+
+                self.send_json({
+                    "ok": True,
+                    "msg": f"✓ {info} finansal verileri basariyla guncellendi.",
+                    "extracted": extracted
+                })
             except Exception as e:
                 self.send_json({"ok": False, "msg": f"Sunucu hatasi: {e}"})
 
@@ -633,13 +638,6 @@ if __name__ == "__main__":
     print("=" * 52, flush=True)
     threading.Thread(target=refresh_news_task, daemon=True).start()
     threading.Thread(target=bulten_scheduler, daemon=True).start()
-    print("  Bulten zamanlayici: Pzt & Cars 09:00 TR", flush=True)
-    server = HTTPServer(("0.0.0.0", PORT), Handler)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\n  Durduruldu.", flush=True)
-t=bulten_scheduler, daemon=True).start()
     print("  Bulten zamanlayici: Pzt & Cars 09:00 TR", flush=True)
     server = HTTPServer(("0.0.0.0", PORT), Handler)
     try:
